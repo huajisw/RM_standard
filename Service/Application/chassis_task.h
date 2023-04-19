@@ -15,9 +15,9 @@
 #define Chassis_Motor_Speed_Maxout 10000
 #define Chassis_Motor_Speed_IMaxout 0
 
-#define Chassis_Motor_Turn_Kp 10
+#define Chassis_Motor_Turn_Kp 9
 #define Chassis_Motor_Turn_Ki 0
-#define Chassis_Motor_Turn_Kd 5
+#define Chassis_Motor_Turn_Kd 7
 #define Chassis_Motor_Turn_Maxout 4
 #define Chassis_Motor_Turn_IMaxout 0
 
@@ -44,6 +44,7 @@
 #define POWER_TOTAL_CURRENT_LIMIT_FACTOR  500
 
 #define Chassis_Max_Speed 4
+#define Spin_Speed 5
 #define Chassis_Shift_Max_Speed 10                                                                                                   
 #define Chassis_RC_Max_Speed 10
 

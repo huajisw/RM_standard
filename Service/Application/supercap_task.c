@@ -12,19 +12,8 @@ supercap_t supercap;
 uint8_t is_supercap_alive()
 {
 		return is_cap_online()
-				 &&supercap.supercap_mode!=SUPCAP_MODE_ERROR
-				 &&supercap.cap_receive_data.cap_v < 3;
-}
-
-void supercap_init(supercap_t* init)
-{
-		init->dji_judge_info = Get_Judge_Info(); 
-		init->super_c_msg = Get_Cap_Data();
-		
-		init->chassis_power_buffer = DEFAULT_CHASSIS_POWER_BUFFER;
-		init->chassis_power_limit = DEFAULT_CHASSIS_POWER_LIMIT;
-	
-		init->supercap_graphic = Judge_Graphic_Arc_Create(0,1,800,800,10,5);
+				 &&supercap.cap_receive_data.cap_v > 3
+				 &&supercap.cap_send_data.cap_control.bit.cap_switch != 0;
 }
 
 void supercap_on()
@@ -110,6 +99,7 @@ void supercap_control_set(supercap_t* control_set)
 						control_set->cap_send_data.chassis_power_buffer = control_set->dji_judge_info->Judge_power_heat_data.chassis_power_buffer;
 						control_set->cap_send_data.cap_control.bit.gamegoing = (control_set->dji_judge_info->Judge_game_status.game_progress==4);
 						control_set->cap_send_data.cap_control.bit.cap_switch = 1;
+						//control_set->cap_send_data.cap_control.bit.gamegoing = 1;
 				}
 				else if(control_set->supercap_mode==SUPCAP_MODE_DEBUG)
 				{
@@ -133,6 +123,29 @@ void supercap_control_set(supercap_t* control_set)
 				supercap_tx_msg_send(control_set);
 				supercap_rx_msg_parse(control_set);
 		}
+}
+
+void supercap_init(supercap_t* init)
+{
+		init->dji_judge_info = Get_Judge_Info(); 
+		init->super_c_msg = Get_Cap_Data();
+		
+		init->chassis_power_buffer = DEFAULT_CHASSIS_POWER_BUFFER;
+		init->chassis_power_limit = DEFAULT_CHASSIS_POWER_LIMIT;
+	
+		init->supercap_graphic = Judge_Graphic_Arc_Create(0,1,800,800,10,5);
+//		
+//		init->debug_mode = 1;
+//		init->game_going = 0;
+//		init->supercap_on = 0;
+//		supercap_control_set(init);
+//		vTaskDelay(2000);
+//		
+//		init->debug_mode = 1;
+//		init->game_going = 1;
+//		init->supercap_on  =1;
+//		supercap_control_set(init);
+		//vTaskDelay(2000);
 }
 
 void supercap_graphic_draw(supercap_t* graphic_draw)

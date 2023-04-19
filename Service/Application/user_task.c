@@ -29,6 +29,7 @@
 #include "usb_usart.h"
 
 #include "imu_bsp.h"
+#include "Judge_Graphic.h"
 
 extern float motor_set;
 float motor_test_set[2];
@@ -41,10 +42,14 @@ extern Osker_Remote_Control_Struct Osker_Remote_Control_Data;
 uint32_t Flash_Data[2];
 
 float Get_Imu_Data[3];
+Judge_Graphic_Obj_t* Circle;
 
 void UserTast(void *pvParameters)
 {
 	vTaskDelay(100);
+	Circle = Judge_Graphic_Circle_Create(800,800,50,10);
+	Judge_Graphic_Circle_Create(900,900,50,10);
+	Judge_Graphic_Circle_Create(1000,1000,50,10);
 	while(1)
 	{
 
@@ -56,6 +61,8 @@ void UserTast(void *pvParameters)
 		
 //		Flash_Wordbyte_Write(0x081E1234,Flash_Data,2);
 //		Usb_Write_Data("test-test \r\n");
+		
+		
 		LED_GREEN_ON();
 		vTaskDelay(500);
 		LED_GREEN_OFF();

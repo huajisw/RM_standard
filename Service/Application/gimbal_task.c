@@ -53,8 +53,8 @@ float Gimbal_Motor_Pitch_Set_Add;
 #define Yaw_Max_Angle 1.9f
 #define Yaw_Min_Angle -1.9f
 
-#define Pitch_Max_Angle 0.62f
-#define Pitch_Min_Angle 0.15f
+#define Pitch_Max_Angle 0.65f
+#define Pitch_Min_Angle 0.05f
 
 #define Pitch_IMU_Max_Angle 0
 #define Pitch_IMU_Min_Angle 0
@@ -106,15 +106,15 @@ static void Angle_Control_Limit(float *Angle_Set,float Max_Angle,float Min_Angle
 #define Gimbal_Yaw_Motor_Angle_Maxout 10
 #define Gimbal_Yaw_Motor_Angle_IMaxout 10
 
-#define Gimbal_Yaw_IMU_Angle_Kp 3.5
+#define Gimbal_Yaw_IMU_Angle_Kp 2
 #define Gimbal_Yaw_IMU_Angle_Ki 0
-#define Gimbal_Yaw_IMU_Angle_Kd 400
+#define Gimbal_Yaw_IMU_Angle_Kd 600
 #define Gimbal_Yaw_IMU_Angle_Maxout 9
 #define Gimbal_Yaw_IMU_Angle_IMaxout 0
 
-#define Gimbal_Yaw_Speed_Kp 6000
+#define Gimbal_Yaw_Speed_Kp 7000
 #define Gimbal_Yaw_Speed_Ki 0
-#define Gimbal_Yaw_Speed_Kd 0
+#define Gimbal_Yaw_Speed_Kd 600
 #define Gimbal_Yaw_Speed_Maxout 25000
 #define Gimbal_Yaw_Speed_IMaxout 5000
 
@@ -130,9 +130,9 @@ static void Angle_Control_Limit(float *Angle_Set,float Max_Angle,float Min_Angle
 #define Gimbal_Pitch_Vision_Angle_Maxout 10
 #define Gimbal_Pitch_Vision_Angle_IMaxout 10
 
-#define Gimbal_Pitch_Motor_Angle_Kp 30
+#define Gimbal_Pitch_Motor_Angle_Kp 15
 #define Gimbal_Pitch_Motor_Angle_Ki 0
-#define Gimbal_Pitch_Motor_Angle_Kd 30
+#define Gimbal_Pitch_Motor_Angle_Kd 300
 #define Gimbal_Pitch_Motor_Angle_Maxout 10
 #define Gimbal_Pitch_Motor_Angle_IMaxout 10
 
@@ -442,9 +442,17 @@ void Gimbal_Init(Gimbal_t* Gimbal_Init)
 	Gimbal_Init->Gimbal_IMU_Aspeed = get_JY61_Gyro_Data_Point();
 
 	Gimbal_Init->Gimbal_Yaw_Msg_t.Gimbal_IMU_Angle_Data = get_JY61_angle_Point() + 2;
-	Gimbal_Init->Gimbal_Pitch_Msg_t.Gimbal_IMU_Angle_Data =  get_JY61_angle_Point() + 1;
+	Gimbal_Init->Gimbal_Pitch_Msg_t.Gimbal_IMU_Angle_Data =  get_JY61_angle_Point() + 0;
 	Gimbal_Init->Gimbal_Yaw_Msg_t.Gimbal_IMU_Aspeed_Data = get_JY61_Gyro_Data_Point() + 2;
-	Gimbal_Init->Gimbal_Pitch_Msg_t.Gimbal_IMU_Aspeed_Data = get_JY61_Gyro_Data_Point() + 1;
+	Gimbal_Init->Gimbal_Pitch_Msg_t.Gimbal_IMU_Aspeed_Data = get_JY61_Gyro_Data_Point() + 0;
+
+//	Gimbal_Init->Gimbal_IMU_Angle = get_INS_angle_point();
+//	Gimbal_Init->Gimbal_IMU_Aspeed = get_MPU6500_Gyro_Data_Point();
+
+//	Gimbal_Init->Gimbal_Yaw_Msg_t.Gimbal_IMU_Angle_Data = get_INS_angle_point() + 0;
+//	Gimbal_Init->Gimbal_Pitch_Msg_t.Gimbal_IMU_Angle_Data =  get_INS_angle_point() + 2;
+//	Gimbal_Init->Gimbal_Yaw_Msg_t.Gimbal_IMU_Aspeed_Data = get_MPU6500_Gyro_Data_Point() + 0;
+//	Gimbal_Init->Gimbal_Pitch_Msg_t.Gimbal_IMU_Aspeed_Data = get_MPU6500_Gyro_Data_Point() + 2;
 	
 	
 //	Gimbal_Init->Gimbal_Pitch_Msg_t.Angle_Init_flag = 0;
@@ -659,7 +667,7 @@ void Gimbal_Motor_Control_Data_Check(Gimbal_t* Gimbal_Data_Check)
 }
 
 //BUG[5.2]无法180°转头，角度有问题
-float Mouse_X_Set = 26500.0f,Mouse_Y_Set = 22000.0f;
+float Mouse_X_Set = 30000.0f,Mouse_Y_Set = 40000.0f;
 
 float Gimbal_Yaw_Now_Angle,Gimbal_Yaw_Target_Angle;
 
@@ -737,7 +745,7 @@ void Gimbal_IMU_Control_NL_Set(Gimbal_t* Gimbal_Control_Set)
 
 	Gimbal_Control_Set->Gimbal_Motor_Current_Send[1] = \
 	pid_calc(&Gimbal_Control_Set->Gimbal_Pitch_Speed_Pid,\
-	Gimbal_Control_Set->Gimbal_Pitch_Msg_t.Gimbal_IMU_Aspeed,Gimbal_Control_Set->Gimbal_Pitch_Apid_Out);
+	Gimbal_Control_Set->Gimbal_Pitch_Msg_t.Gimbal_Motor_Aspeed,Gimbal_Control_Set->Gimbal_Pitch_Apid_Out);
 	
   	
 	Gimbal_Control_Set->Gimbal_Yaw_Apid_Out = \
@@ -806,7 +814,7 @@ void Gimbal_Motor_Control_Set(Gimbal_t* Gimbal_Control_Set)
 	
 	Gimbal_Control_Set->Gimbal_Motor_Current_Send[1] = \
 	pid_calc(&Gimbal_Control_Set->Gimbal_Pitch_Speed_Pid,\
-	Gimbal_Control_Set->Gimbal_Pitch_Msg_t.Gimbal_IMU_Aspeed,Gimbal_Control_Set->Gimbal_Pitch_Apid_Out);
+	Gimbal_Control_Set->Gimbal_Pitch_Msg_t.Gimbal_Motor_Aspeed,Gimbal_Control_Set->Gimbal_Pitch_Apid_Out);
 	
 	
 	Gimbal_Control_Set->Gimbal_Yaw_Apid_Out = \
@@ -1170,7 +1178,7 @@ void Gimbal_Task(void *pvParameters)
 		
 		Gimbal_Mode_Config(&Gimbal);
 				
-		CAN2_Motor_Control(0x1FF,(int16_t)Gimbal.Gimbal_Motor_Current_Send[0],0,0,0);
+		CAN2_Motor_Control(0x1FF,(int16_t)Gimbal.Gimbal_Motor_Current_Send[0],(int16_t)Gimbal.Gimbal_Motor_Current_Send[1],0,0);
 		vTaskDelay(1);	
 	}
 }

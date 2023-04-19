@@ -38,9 +38,9 @@ int main(void)
 { 
 	delay_init(configTICK_RATE_HZ);
 	delay_ms(10);
-
-	__disable_irq();
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4); 
+	__disable_irq();
+	
 	Usb_Init();	
 	Led_Init();
 	
@@ -48,7 +48,6 @@ int main(void)
 
 	
 //	PC_Usart_Init();
-	Judge_Usart_Init();
 	
 	Adc_Init();
 	Power_24V_Init();
@@ -74,7 +73,7 @@ int main(void)
 	key_init();
 	Laser_Init();
 	Shoot_key_init();
-	
+	Judge_Usart_Init();
 	__enable_irq();
 	startTast();
 	vTaskStartScheduler();//开启任务调度

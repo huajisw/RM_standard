@@ -129,7 +129,7 @@ void Judge_Usart_Init()
 	NVIC_Init(&NVIC_InitStructure);
 	
 	NVIC_InitStructure.NVIC_IRQChannel = USART6_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 5;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE; 
 	NVIC_Init(&NVIC_InitStructure);
@@ -381,7 +381,7 @@ void USART6_IRQHandler(void)
 			volatile uint16_t Flag = USART6->SR;
 			volatile uint16_t Data = USART6->DR;
 
-			//Judge_Data.Judge_Usart_Rx_Timestamp = xTaskGetTickCountFromISR();
+			Judge_Data.Judge_Usart_Rx_Timestamp = xTaskGetTickCountFromISR();
 			
 			if(DMA_GetCurrentMemoryTarget(DMA2_Stream1) == 0)
 			{

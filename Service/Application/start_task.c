@@ -113,11 +113,11 @@ void start_task(void *pvParameters)
 		(void *)NULL,(UBaseType_t)GIMBAL_TASK_PRIO,
 		(TaskHandle_t *)&Gimbaldask_Handler);		
 	
-//		xTaskCreate((TaskFunction_t)Chassis_Task,
-//		(const char *)"Chassis_Task",
-//		(uint16_t)CHASSIS_STK_SIZE,
-//	  (void *)NULL,(UBaseType_t)CHASSIS_TASK_PRIO,
-//		(TaskHandle_t *)&Gimbaldask_Handler);			
+		xTaskCreate((TaskFunction_t)Chassis_Task,
+		(const char *)"Chassis_Task",
+		(uint16_t)CHASSIS_STK_SIZE,
+	  (void *)NULL,(UBaseType_t)CHASSIS_TASK_PRIO,
+		(TaskHandle_t *)&Gimbaldask_Handler);			
 		
 		xTaskCreate((TaskFunction_t)Shoot_Task,
 		(const char *)"Shoot_Task",
