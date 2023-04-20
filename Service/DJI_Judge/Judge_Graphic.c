@@ -977,11 +977,14 @@ static void Judge_Graphic_Obj_Send(Judge_Graphic_Obj_To_Send_t* Graphic_Obj_To_S
 
 void Judge_Graphic_Handler(void)
 {
-//		if(Is_Judge_Online())
-//		{
+		if(Is_Judge_Online())
+		{
 			Judge_Graphic_Obj_To_Send_t Graphic_Obj_To_Send;
 			memset(&Graphic_Obj_To_Send,0,sizeof(Judge_Graphic_Obj_To_Send_t));
-			Iterate_All_ListItem(&DJI_Judge_Graphic.Graphic_Obj_List,&Graphic_Obj_To_Send,NULL,Judge_Graphic_Obj_Iterator);	
-			Judge_Graphic_Obj_Send(&Graphic_Obj_To_Send);
-//		}
+//			while(1)
+//			{
+					Iterate_All_ListItem(&DJI_Judge_Graphic.Graphic_Obj_List,&Graphic_Obj_To_Send,NULL,Judge_Graphic_Obj_Iterator);	
+					Judge_Graphic_Obj_Send(&Graphic_Obj_To_Send);
+//			}
+		}
 }

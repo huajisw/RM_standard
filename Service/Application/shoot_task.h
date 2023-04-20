@@ -151,6 +151,10 @@ typedef struct
 	float Judge_Shoot_Cool_Percent;
 	
 	Judge_Graphic_Obj_t* Bullet_Basket_Graphic;
+	Judge_Graphic_Obj_t* Shoot_Stall_Graphic;
+	Judge_Graphic_Obj_t* Shoot_Line_1m;
+	Judge_Graphic_Obj_t* Shoot_Line_3m;
+	Judge_Graphic_Obj_t* Shoot_Line_ver;
 }Shoot_t;
 
 

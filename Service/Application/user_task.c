@@ -42,14 +42,14 @@ extern Osker_Remote_Control_Struct Osker_Remote_Control_Data;
 uint32_t Flash_Data[2];
 
 float Get_Imu_Data[3];
-Judge_Graphic_Obj_t* Circle;
+//Judge_Graphic_Obj_t* Circle;
 
 void UserTast(void *pvParameters)
 {
 	vTaskDelay(100);
-	Circle = Judge_Graphic_Circle_Create(800,800,50,10);
-	Judge_Graphic_Circle_Create(900,900,50,10);
-	Judge_Graphic_Circle_Create(1000,1000,50,10);
+//	Circle = Judge_Graphic_Circle_Create(800,800,50,10);
+//	Judge_Graphic_Circle_Create(900,900,50,10);
+//	Judge_Graphic_Circle_Create(1000,1000,50,10);
 	while(1)
 	{
 

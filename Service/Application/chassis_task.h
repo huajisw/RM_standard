@@ -5,6 +5,7 @@
 #include "DJI_Remote_Control.h"
 #include "pid.h"
 #include "Judge_Data.h"
+#include "Judge_Graphic.h"
 #include "App_Set.h"
 #include "stm32f4xx.h"
 #include "stm32f4xx_it.h"
@@ -103,6 +104,8 @@ typedef struct
 	float Chassis_Power;	//底盘功率数据
 	uint16_t Chassis_Power_Buffer;		//底盘热量数据
 	uint16_t Chassis_Max_Power;	//当前底盘最大功率
+	
+	Judge_Graphic_Obj_t* Spin_Graphic;
 }Chassis_t;
 
 void Chassis_Task(void *pvParameters);

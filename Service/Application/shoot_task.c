@@ -257,7 +257,15 @@ void Shoot_Init(Shoot_t* Data_Init)
 		Data_Init->Shoot_Key_On_Level = SHOOT_KEY_ON;
 		Data_Init->Fric_Reverse_Flag = 1;
 		
-		Data_Init->Bullet_Basket_Graphic = Judge_Graphic_Circle_Create(800,800,5,5);
+		Data_Init->Shoot_Line_1m = Judge_Graphic_Line_Create(0,540-80,1920,540-80,2);
+		Judge_Graphic_Obj_Set_Color(Data_Init->Shoot_Line_1m,COLOR_ORANGE);
+		Data_Init->Shoot_Line_3m = Judge_Graphic_Line_Create(0,540-50,1920,540-50,2);
+		Judge_Graphic_Obj_Set_Color(Data_Init->Shoot_Line_3m,COLOR_YELLOW);
+		Data_Init->Shoot_Line_3m = Judge_Graphic_Line_Create(960-10,0,960-10,1080,2);
+		Judge_Graphic_Obj_Set_Color(Data_Init->Shoot_Line_ver,COLOR_GREEN);
+		//Data_Init->Shoot_Line_5m = Judge_Graphic_Line_Create(0,540-50,1920,540-50,2);
+		//Data_Init->Bullet_Basket_Graphic = Judge_Graphic_Circle_Create(1800,600,5,5);
+		//Data_Init->Shoot_Stall_Graphic = Judge_Graphic_Circle_Create(1800,650,5,5);
 }
 
 uint8_t Get_Shoot_Freq_From_Judge_System(Shoot_t* Get_Shoot_Freq)
@@ -409,15 +417,16 @@ void Shoot_Draw_Graphic(Shoot_t* Draw_Graphic)
 		}
 		else if(Draw_Graphic->Bullet_Basket_Mode == BASKET_OPEN)
 		{
-				Judge_Graphic_Obj_Set_Color(Draw_Graphic->Bullet_Basket_Graphic,COLOR_YELLOW);
+				Judge_Graphic_Obj_Set_Color(Draw_Graphic->Bullet_Basket_Graphic,COLOR_ORANGE);
 		}
 		
 		if(Draw_Graphic->Shoot_Mode==SHOOT_STALL)
 		{
+				Judge_Graphic_Obj_Set_Color(Draw_Graphic->Shoot_Stall_Graphic,COLOR_ORANGE);
 		}
 		else
 		{
-				
+				Judge_Graphic_Obj_Set_Color(Draw_Graphic->Shoot_Stall_Graphic,COLOR_GREEN);
 		}
 }
 
@@ -437,7 +446,7 @@ void Shoot_Task(void *pvParameters)
 		Shoot_Control_Data_Set(&Shoot);
 		
 		Shoot_Pid_Calc(&Shoot);
-
+		//Shoot_Draw_Graphic(&Shoot);
 		CAN1_Motor_Control(SHOOT_MOTOR_ALL_ID,(int16_t)Shoot.Fric_Motor_Current_Send[0],
 																					(int16_t)Shoot.Fric_Motor_Current_Send[1],
 																					(int16_t)Shoot.Trigger_Motor_Current_Send,0);
