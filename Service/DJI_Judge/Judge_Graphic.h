@@ -93,7 +93,8 @@ typedef struct
 {
 	ListEx_t Graphic_Obj_List;
 	uint32_t Judge_Obj_Counter;
-	SemaphoreHandle_t Graphic_List_Mutex;
+	QueueHandle_t Judge_Graphic_CommonObj_Send_Queue;
+//	SemaphoreHandle_t Graphic_List_Mutex;
 }DJI_Judge_Graphic_t;
 
 uint8_t Judge_Graphic_Obj_Init(Judge_Graphic_Obj_t* Obj);

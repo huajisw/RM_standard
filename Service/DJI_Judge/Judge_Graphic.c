@@ -827,52 +827,15 @@ Judge_Graphic_Obj_t* Judge_Graphic_Character_Create(uint32_t X,uint32_t Y,uint32
 void Judge_Graphic_Init()
 {
 		DJI_Judge_Graphic.Judge_Obj_Counter = 1;
+		//DJI_Judge_Graphic.Judge_Graphic_CommonObj_Send_Queue = xQueueCreate();
 		List_Init(&DJI_Judge_Graphic.Graphic_Obj_List);
 }
 
-typedef __packed struct
-{
-		Judge_Graphic_Obj_t* Character_To_Send;
-		Judge_Graphic_Obj_t* CommonObj_To_Send[7];
-		uint8_t Num_Of_Character_To_Send;
-		uint8_t Num_Of_CommonObj_To_Send;
-		
-}Judge_Graphic_Obj_To_Send_t;
-
-int8_t Judge_Graphic_Obj_Iterator(ListItem_t* ListItem,void* User_Data1,void* User_Data2)
-{
-		Judge_Graphic_Obj_t* Obj = (Judge_Graphic_Obj_t*)(ListItem);
-		Judge_Graphic_Obj_To_Send_t* Graphic_Obj_To_Send = (Judge_Graphic_Obj_To_Send_t*)User_Data1;
-		//锁住图形对象
-		Judge_Graphic_Obj_Lock(Obj);
-		//如果操作不是空操作，那么加入到发送缓冲区内，不解锁图形对象
-		if(Obj->Graphic_Data.operate_tpye!=OPT_NONE)
-		{
-				if(Obj->Graphic_Data.graphic_tpye==CHARACTER&&Graphic_Obj_To_Send->Num_Of_Character_To_Send==0)
-				{
-						Graphic_Obj_To_Send->Character_To_Send = Obj;
-						Graphic_Obj_To_Send->Num_Of_Character_To_Send = 1;
-				}
-				else if(Obj->Graphic_Data.graphic_tpye!=CHARACTER&&Graphic_Obj_To_Send->Num_Of_CommonObj_To_Send<7)
-				{
-						Graphic_Obj_To_Send->CommonObj_To_Send[Graphic_Obj_To_Send->Num_Of_CommonObj_To_Send++]=Obj;
-				}
-				else
-				{
-						Judge_Graphic_Obj_Unlock(Obj);
-				}
-		}
-		//否则解锁图形对象
-		else
-		{
-				Judge_Graphic_Obj_Unlock(Obj);
-		}
-		
-		//如果两个发送缓冲区都满了，那么停止遍历，剩下的下次遍历
-		if(Graphic_Obj_To_Send->Num_Of_Character_To_Send==1&&Graphic_Obj_To_Send->Num_Of_CommonObj_To_Send==7)
-			return 0;
-		return 1;
-}
+//typedef __packed struct
+//{
+//		uint8_t Num_Of_CommonObj_To_Send;	
+//		Judge_Graphic_Obj_t* CommonObj_Buff[7];
+//}Judge_Graphic_CommonObj_To_Send_t;
 
 static void Judge_Graphic_Obj_Del_Asyn(Judge_Graphic_Obj_t* Judge_Graphic_Obj)
 {
@@ -884,107 +847,175 @@ static void Judge_Graphic_Obj_Del_Asyn(Judge_Graphic_Obj_t* Judge_Graphic_Obj)
 		vPortFree(Judge_Graphic_Obj);
 }
 
-
-static void Judge_Graphic_Obj_Send(Judge_Graphic_Obj_To_Send_t* Graphic_Obj_To_Send)
+static void Judge_Graphic_Character_Send(Judge_Graphic_Obj_t* Judge_Graphic_Character)
 {
-		if(Graphic_Obj_To_Send->Num_Of_Character_To_Send)
+		uint8_t* Send_Buff = pvPortMalloc(JUDGE_GRAPHIC_DATA_LEN+JUDGE_GRAPHIC_CHARACTER_LEN);
+		//如果申请内存成功，那么写入数据，否则直接解锁对象
+		if(Send_Buff)
 		{
-				uint8_t* Send_Buff = pvPortMalloc(JUDGE_GRAPHIC_DATA_LEN+JUDGE_GRAPHIC_CHARACTER_LEN);
-				//如果申请内存成功，那么写入数据，否则直接解锁对象
-				if(Send_Buff)
+				memcpy(Send_Buff,&Judge_Graphic_Character->Graphic_Data,JUDGE_GRAPHIC_DATA_LEN);
+				uint32_t Character_Addr = (uint32_t)Judge_Graphic_Character+sizeof(Judge_Graphic_Obj_t);
+				memcpy(Send_Buff+JUDGE_GRAPHIC_DATA_LEN,(void*)(Character_Addr),JUDGE_GRAPHIC_CHARACTER_LEN);
+				//如果对象需要删除，那么直接删除，否则设置空操作后解锁
+				if(Judge_Graphic_Character->Graphic_Data.operate_tpye==OPT_DELETE)
 				{
-						memcpy(Send_Buff,&Graphic_Obj_To_Send->Character_To_Send->Graphic_Data,JUDGE_GRAPHIC_DATA_LEN);
-						uint32_t Character_Addr = (uint32_t)Graphic_Obj_To_Send->Character_To_Send+sizeof(Judge_Graphic_Obj_t);
-						memcpy(Send_Buff+JUDGE_GRAPHIC_DATA_LEN,(void*)(Character_Addr),JUDGE_GRAPHIC_CHARACTER_LEN);
-						//如果对象需要删除，那么直接删除，否则设置空操作后解锁
-						if(Graphic_Obj_To_Send->Character_To_Send->Graphic_Data.operate_tpye==OPT_DELETE)
-						{
-							Judge_Graphic_Obj_Del_Asyn(Graphic_Obj_To_Send->Character_To_Send);
-						}
-						else
-						{
-							Graphic_Obj_To_Send->Character_To_Send->Graphic_Data.operate_tpye=OPT_NONE;
-							Judge_Graphic_Obj_Unlock(Graphic_Obj_To_Send->Character_To_Send);
-						}
-						//最后发送数据
-						Judge_Student_Data_Send(Send_Buff,JUDGE_GRAPHIC_DATA_LEN+JUDGE_GRAPHIC_CHARACTER_LEN,GRAPHIC_CMDID_CHARACTER,Target_Client);
+					Judge_Graphic_Obj_Del_Asyn(Judge_Graphic_Character);
 				}
 				else
 				{
-						Judge_Graphic_Obj_Unlock(Graphic_Obj_To_Send->Character_To_Send);
+					Judge_Graphic_Character->Graphic_Data.operate_tpye=OPT_NONE;
 				}
+				//最后发送数据
+				Judge_Student_Data_Send(Send_Buff,JUDGE_GRAPHIC_DATA_LEN+JUDGE_GRAPHIC_CHARACTER_LEN,GRAPHIC_CMDID_CHARACTER,Target_Client);
+				vPortFree(Send_Buff);
 		}
-		
-		if(Graphic_Obj_To_Send->Num_Of_CommonObj_To_Send)
-		{
-				uint8_t Item_To_Send = 0;
-				uint32_t CmdID = 0;
-				if(Graphic_Obj_To_Send->Num_Of_CommonObj_To_Send>6)
-				{
-					Item_To_Send = 7;
-					CmdID = GRAPHIC_CMDID_SEVEN;
-				}
-				else if(Graphic_Obj_To_Send->Num_Of_CommonObj_To_Send>4)
-				{
-					Item_To_Send = 5;
-					CmdID = GRAPHIC_CMDID_FIVE;
-				}
-				else if(Graphic_Obj_To_Send->Num_Of_CommonObj_To_Send>1)
-				{
-					Item_To_Send = 2;
-					CmdID = GRAPHIC_CMDID_TWO;
-				}
-				else if(Graphic_Obj_To_Send->Num_Of_CommonObj_To_Send>0)
-				{
-					Item_To_Send = 1;
-					CmdID = GRAPHIC_CMDID_ONE;
-				}
-				
-				uint8_t* Send_Buff = pvPortMalloc(JUDGE_GRAPHIC_DATA_LEN*Item_To_Send);
-				//如果申请失败，令需要发送的数量为0
-				if(!Send_Buff)
-						Item_To_Send = 0;
-				
-				for(uint8_t i = 0;i < Graphic_Obj_To_Send->Num_Of_CommonObj_To_Send;i++)
-				{
-						//如果需要发送，那么写入发送缓冲区，否则直接解锁
-						if(i<Item_To_Send)
-						{
-							memcpy(&Send_Buff[i*JUDGE_GRAPHIC_DATA_LEN],&Graphic_Obj_To_Send->CommonObj_To_Send[i]->Graphic_Data,JUDGE_GRAPHIC_DATA_LEN);
-							//看是否是删除操作，如果是，那么删除这个对象，否则直接设为空操作并解锁
-							if(Graphic_Obj_To_Send->CommonObj_To_Send[i]->Graphic_Data.operate_tpye==OPT_DELETE)
-							{
-								Judge_Graphic_Obj_Del_Asyn(Graphic_Obj_To_Send->CommonObj_To_Send[i]);
-							}
-							else
-							{
-								Graphic_Obj_To_Send->CommonObj_To_Send[i]->Graphic_Data.operate_tpye = OPT_NONE;
-								Judge_Graphic_Obj_Unlock(Graphic_Obj_To_Send->CommonObj_To_Send[i]);
-							}
-							
-						}
-						else
-						{
-								Judge_Graphic_Obj_Unlock(Graphic_Obj_To_Send->CommonObj_To_Send[i]);
-						}
-				}
-				
-				if(Item_To_Send)
-						Judge_Student_Data_Send(Send_Buff,Item_To_Send*JUDGE_GRAPHIC_DATA_LEN,CmdID,Target_Client);
-		}
-		
 }
+
+static uint8_t Judge_Graphic_CommonObj_Send(Judge_Graphic_Obj_t* Judge_Graphic_CommonObj)
+{	
+			uint16_t	CmdID = GRAPHIC_CMDID_ONE;
+			uint8_t* Send_Buff = pvPortMalloc(JUDGE_GRAPHIC_DATA_LEN);
+			//如果申请失败，令需要发送的数量为0
+			if(Send_Buff)
+			{
+					memcpy(Send_Buff,&Judge_Graphic_CommonObj->Graphic_Data,JUDGE_GRAPHIC_DATA_LEN);
+					//看是否是删除操作，如果是，那么删除这个对象，否则直接设为空操作并解锁
+					if(Judge_Graphic_CommonObj->Graphic_Data.operate_tpye==OPT_DELETE)
+					{
+						Judge_Graphic_Obj_Del_Asyn(Judge_Graphic_CommonObj);
+					}
+					else
+					{
+						Judge_Graphic_CommonObj->Graphic_Data.operate_tpye = OPT_NONE;
+					}
+					Judge_Student_Data_Send(Send_Buff,JUDGE_GRAPHIC_DATA_LEN,CmdID,Target_Client);
+					vPortFree(Send_Buff);
+			}
+			
+}
+
+int8_t Judge_Graphic_Obj_Iterator(ListItem_t* ListItem,void* User_Data1,void* User_Data2)
+{
+		Judge_Graphic_Obj_t* Obj = (Judge_Graphic_Obj_t*)(ListItem);
+		//锁住图形对象
+		Judge_Graphic_Obj_Lock(Obj);
+		//
+		if(Obj->Graphic_Data.operate_tpye!=OPT_NONE)
+		{
+				if(Obj->Graphic_Data.graphic_tpye==CHARACTER)
+				{
+						//字符串类型直接发送
+						Judge_Graphic_Character_Send(Obj);
+				}
+				else
+				{	
+						//其余的类型放在发送队列中，之后统一发送
+						Judge_Graphic_CommonObj_Send(Obj);
+				}
+		}
+		//解锁图形对象
+		Judge_Graphic_Obj_Unlock(Obj);
+		
+		//如果两个发送缓冲区都满了，那么停止遍历，剩下的下次遍历
+
+		return 1;
+}
+
+
+//static void Judge_Graphic_Obj_Send(Judge_Graphic_Obj_To_Send_t* Graphic_Obj_To_Send)
+//{
+//		if(Graphic_Obj_To_Send->Num_Of_Character_To_Send)
+//		{
+//				uint8_t* Send_Buff = pvPortMalloc(JUDGE_GRAPHIC_DATA_LEN+JUDGE_GRAPHIC_CHARACTER_LEN);
+//				//如果申请内存成功，那么写入数据，否则直接解锁对象
+//				if(Send_Buff)
+//				{
+//						memcpy(Send_Buff,&Graphic_Obj_To_Send->Character_To_Send->Graphic_Data,JUDGE_GRAPHIC_DATA_LEN);
+//						uint32_t Character_Addr = (uint32_t)Graphic_Obj_To_Send->Character_To_Send+sizeof(Judge_Graphic_Obj_t);
+//						memcpy(Send_Buff+JUDGE_GRAPHIC_DATA_LEN,(void*)(Character_Addr),JUDGE_GRAPHIC_CHARACTER_LEN);
+//						//如果对象需要删除，那么直接删除，否则设置空操作后解锁
+//						if(Graphic_Obj_To_Send->Character_To_Send->Graphic_Data.operate_tpye==OPT_DELETE)
+//						{
+//							Judge_Graphic_Obj_Del_Asyn(Graphic_Obj_To_Send->Character_To_Send);
+//						}
+//						else
+//						{
+//							Graphic_Obj_To_Send->Character_To_Send->Graphic_Data.operate_tpye=OPT_NONE;
+//							Judge_Graphic_Obj_Unlock(Graphic_Obj_To_Send->Character_To_Send);
+//						}
+//						//最后发送数据
+//						Judge_Student_Data_Send(Send_Buff,JUDGE_GRAPHIC_DATA_LEN+JUDGE_GRAPHIC_CHARACTER_LEN,GRAPHIC_CMDID_CHARACTER,Target_Client);
+//				}
+//				else
+//				{
+//						Judge_Graphic_Obj_Unlock(Graphic_Obj_To_Send->Character_To_Send);
+//				}
+//		}
+//		
+//		if(Graphic_Obj_To_Send->Num_Of_CommonObj_To_Send)
+//		{
+//				uint8_t Item_To_Send = 0;
+//				uint32_t CmdID = 0;
+//				if(Graphic_Obj_To_Send->Num_Of_CommonObj_To_Send>6)
+//				{
+//					Item_To_Send = 7;
+//					CmdID = GRAPHIC_CMDID_SEVEN;
+//				}
+//				else if(Graphic_Obj_To_Send->Num_Of_CommonObj_To_Send>4)
+//				{
+//					Item_To_Send = 5;
+//					CmdID = GRAPHIC_CMDID_FIVE;
+//				}
+//				else if(Graphic_Obj_To_Send->Num_Of_CommonObj_To_Send>1)
+//				{
+//					Item_To_Send = 2;
+//					CmdID = GRAPHIC_CMDID_TWO;
+//				}
+//				else if(Graphic_Obj_To_Send->Num_Of_CommonObj_To_Send>0)
+//				{
+//					Item_To_Send = 1;
+//					CmdID = GRAPHIC_CMDID_ONE;
+//				}
+//				
+//				uint8_t* Send_Buff = pvPortMalloc(JUDGE_GRAPHIC_DATA_LEN*Item_To_Send);
+//				//如果申请失败，令需要发送的数量为0
+//				if(!Send_Buff)
+//						Item_To_Send = 0;
+//				
+//				for(uint8_t i = 0;i < Graphic_Obj_To_Send->Num_Of_CommonObj_To_Send;i++)
+//				{
+//						//如果需要发送，那么写入发送缓冲区，否则直接解锁
+//						if(i<Item_To_Send)
+//						{
+//							memcpy(&Send_Buff[i*JUDGE_GRAPHIC_DATA_LEN],&Graphic_Obj_To_Send->CommonObj_To_Send[i]->Graphic_Data,JUDGE_GRAPHIC_DATA_LEN);
+//							//看是否是删除操作，如果是，那么删除这个对象，否则直接设为空操作并解锁
+//							if(Graphic_Obj_To_Send->CommonObj_To_Send[i]->Graphic_Data.operate_tpye==OPT_DELETE)
+//							{
+//								Judge_Graphic_Obj_Del_Asyn(Graphic_Obj_To_Send->CommonObj_To_Send[i]);
+//							}
+//							else
+//							{
+//								Graphic_Obj_To_Send->CommonObj_To_Send[i]->Graphic_Data.operate_tpye = OPT_NONE;
+//								Judge_Graphic_Obj_Unlock(Graphic_Obj_To_Send->CommonObj_To_Send[i]);
+//							}
+//							
+//						}
+//						else
+//						{
+//								Judge_Graphic_Obj_Unlock(Graphic_Obj_To_Send->CommonObj_To_Send[i]);
+//						}
+//				}
+//				
+//				if(Item_To_Send)
+//						Judge_Student_Data_Send(Send_Buff,Item_To_Send*JUDGE_GRAPHIC_DATA_LEN,CmdID,Target_Client);
+//		}
+//		
+//}
 
 void Judge_Graphic_Handler(void)
 {
 		if(Is_Judge_Online())
 		{
-			Judge_Graphic_Obj_To_Send_t Graphic_Obj_To_Send;
-			memset(&Graphic_Obj_To_Send,0,sizeof(Judge_Graphic_Obj_To_Send_t));
-//			while(1)
-//			{
-					Iterate_All_ListItem(&DJI_Judge_Graphic.Graphic_Obj_List,&Graphic_Obj_To_Send,NULL,Judge_Graphic_Obj_Iterator);	
-					Judge_Graphic_Obj_Send(&Graphic_Obj_To_Send);
-//			}
+			Iterate_All_ListItem(&DJI_Judge_Graphic.Graphic_Obj_List,NULL,NULL,Judge_Graphic_Obj_Iterator);	
 		}
 }
