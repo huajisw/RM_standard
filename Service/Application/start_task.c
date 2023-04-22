@@ -132,12 +132,12 @@ void start_task(void *pvParameters)
 //		(UBaseType_t)CHECK_TASK_PRIO,
 //		(TaskHandle_t *)&CheckTask_Handler);
 		
-//		xTaskCreate((TaskFunction_t)supercap_task,
-//	  (const char *)"SuperCap_Task",
-//	  (uint16_t)SUPERCAP_STK_SIZE,
-//		(void *)NULL,
-//		(UBaseType_t)SUPERCAP_TASK_PRIO,
-//		(TaskHandle_t *)&SuperCapTask_Handler);	
+		xTaskCreate((TaskFunction_t)supercap_task,
+	  (const char *)"SuperCap_Task",
+	  (uint16_t)SUPERCAP_STK_SIZE,
+		(void *)NULL,
+		(UBaseType_t)SUPERCAP_TASK_PRIO,
+		(TaskHandle_t *)&SuperCapTask_Handler);	
 
 		xTaskCreate((TaskFunction_t)Judge_Task, //   裁判系统通信任务 
 		(const char *)"Judge_Task",

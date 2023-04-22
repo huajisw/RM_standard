@@ -48,11 +48,12 @@ void Shoot_Mode_Set(Shoot_t* Mode_Set)
 																			||((Shoot_Mode_Key&SHOOT_START_STOP_KEY)&&!(Mode_Set->Last_Shoot_Mode_Key&SHOOT_START_STOP_KEY));
 	
 	
-		if((Shoot_Mode_Key&BULLET_BASKET_KEY)&&!(Mode_Set->Last_Shoot_Mode_Key&BULLET_BASKET_KEY))
+		if((Shoot_Mode_Key&BULLET_BASKET_OPEN_KEY)&&!(Mode_Set->Last_Shoot_Mode_Key&BULLET_BASKET_OPEN_KEY))
 		{
-				if(Mode_Set->Bullet_Basket_Mode==BASKET_CLOSE)
 					Mode_Set->Bullet_Basket_Mode = BASKET_OPEN;
-				else if(Mode_Set->Bullet_Basket_Mode==BASKET_OPEN)
+		}
+		else if((Shoot_Mode_Key&BULLET_BASKET_CLOSE_KEY)&&!(Mode_Set->Last_Shoot_Mode_Key&BULLET_BASKET_CLOSE_KEY))
+		{
 					Mode_Set->Bullet_Basket_Mode = BASKET_CLOSE;
 		}
 	

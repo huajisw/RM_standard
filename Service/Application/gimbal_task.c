@@ -54,7 +54,7 @@ float Gimbal_Motor_Pitch_Set_Add;
 #define Yaw_Min_Angle -1.9f
 
 #define Pitch_Max_Angle 0.65f
-#define Pitch_Min_Angle 0.05f
+#define Pitch_Min_Angle -0.40f
 
 #define Pitch_IMU_Max_Angle 0
 #define Pitch_IMU_Min_Angle 0

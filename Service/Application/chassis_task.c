@@ -639,7 +639,8 @@ void Chassis_Data_Update(Chassis_t* Chassis_Update)
 void Chassis_Power_Limit(Chassis_t* Power_Limit)
 {
 		//裁判系统没有上线，不用限制功率
-		if(Is_Judge_Online()&&Power_Limit->Robot_ID!=Blue_Engineer&&Power_Limit->Robot_ID!=Red_Engineer&&!is_supercap_alive())
+		//if(Is_Judge_Online()&&Power_Limit->Robot_ID!=Blue_Engineer&&Power_Limit->Robot_ID!=Red_Engineer&&!is_supercap_alive())
+		if(Is_Judge_Online()&&Power_Limit->Robot_ID!=Blue_Engineer&&Power_Limit->Robot_ID!=Red_Engineer)
 		{
 			//如果超级电容离线，那么只能强制限制功率	
 			float Total_Current_Limit = 0.0f;
