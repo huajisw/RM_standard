@@ -31,7 +31,8 @@
 
 //按键开启发射机构
 #define SHOOT_START_STOP_KEY KEY_PRESSED_OFFSET_R
-#define BULLET_BASKET_KEY KEY_PRESSED_OFFSET_B
+#define BULLET_BASKET_CLOSE_KEY KEY_PRESSED_OFFSET_C
+#define BULLET_BASKET_OPEN_KEY	KEY_PRESSED_OFFSET_V
 
 //拨弹轮拨一圈能拨出几发弹丸
 #define BULLETS_PER_ROTATION  8
@@ -61,7 +62,7 @@
 #define SHOOT_CAN CAN_1
 
 #define SHOOT_BULLET_TIME_LIMIT 500
-#define SHOOT_MODE_SWITCH_DOWN_TIME_LIMIT 1000
+#define SHOOT_MODE_SWITCH_DOWN_TIME_LIMIT 500
 #define SHOOT_STALL_TIME_LIMIT 1000
 #define TRIGGER_MOTOR_MIN_SPEED 1 
 
@@ -150,11 +151,11 @@ typedef struct
 	float Judge_Shoot_Heat_Percent;
 	float Judge_Shoot_Cool_Percent;
 	
-	Judge_Graphic_Obj_t* Bullet_Basket_Graphic;
-	Judge_Graphic_Obj_t* Shoot_Stall_Graphic;
-	Judge_Graphic_Obj_t* Shoot_Line_1m;
-	Judge_Graphic_Obj_t* Shoot_Line_3m;
-	Judge_Graphic_Obj_t* Shoot_Line_ver;
+	Judge_Graphic_Obj_Handle Bullet_Basket_Graphic;
+	Judge_Graphic_Obj_Handle Shoot_Stall_Graphic;
+	Judge_Graphic_Obj_Handle Shoot_Line_1m;
+	Judge_Graphic_Obj_Handle Shoot_Line_3m;
+	Judge_Graphic_Obj_Handle Shoot_Line_ver;
 }Shoot_t;
 
 

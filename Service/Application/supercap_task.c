@@ -34,8 +34,7 @@ void supercap_data_update(supercap_t* data_update)
 
 void supercap_mode_set(supercap_t* mode_set)
 {
-		if(mode_set->cap_receive_data.cap_state.bit.cap_i_over||mode_set->cap_receive_data.cap_state.bit.warning||
-						mode_set->cap_receive_data.cap_state.bit.cap_v_over)
+		if(mode_set->cap_receive_data.cap_state.bit.cap_i_over||mode_set->cap_receive_data.cap_state.bit.warning||mode_set->cap_receive_data.cap_state.bit.cap_v_over)
 		{
 				mode_set->supercap_mode = SUPCAP_MODE_ERROR;
 		}
@@ -99,7 +98,7 @@ void supercap_control_set(supercap_t* control_set)
 						control_set->cap_send_data.chassis_power_buffer = control_set->dji_judge_info->Judge_power_heat_data.chassis_power_buffer;
 						control_set->cap_send_data.cap_control.bit.gamegoing = (control_set->dji_judge_info->Judge_game_status.game_progress==4);
 						control_set->cap_send_data.cap_control.bit.cap_switch = 1;
-						//control_set->cap_send_data.cap_control.bit.gamegoing = 1;
+						control_set->cap_send_data.cap_control.bit.gamegoing = 1;
 				}
 				else if(control_set->supercap_mode==SUPCAP_MODE_DEBUG)
 				{
@@ -133,19 +132,8 @@ void supercap_init(supercap_t* init)
 		init->chassis_power_buffer = DEFAULT_CHASSIS_POWER_BUFFER;
 		init->chassis_power_limit = DEFAULT_CHASSIS_POWER_LIMIT;
 	
-		init->supercap_graphic = Judge_Graphic_Arc_Create(0,1,800,800,10,5);
-//		
-//		init->debug_mode = 1;
-//		init->game_going = 0;
-//		init->supercap_on = 0;
-//		supercap_control_set(init);
-//		vTaskDelay(2000);
-//		
-//		init->debug_mode = 1;
-//		init->game_going = 1;
-//		init->supercap_on  =1;
-//		supercap_control_set(init);
-		//vTaskDelay(2000);
+		init->supercap_graphic = Judge_Graphic_Arc_Create(0,1,1640,700,10,5);
+		Judge_Graphic_Character_Create(1665,710,20,"SUPERCAP");
 }
 
 void supercap_graphic_draw(supercap_t* graphic_draw)
@@ -158,6 +146,8 @@ void supercap_graphic_draw(supercap_t* graphic_draw)
 		else
 		{
 				uint32_t end_angle = graphic_draw->cap_receive_data.cap_v/CAP_MAX_VOLT*360;
+				if(end_angle > 360)
+					end_angle = 360;
 				Judge_Graphic_Obj_Set_End_Angle(graphic_draw->supercap_graphic,end_angle);
 				if(graphic_draw->cap_receive_data.cap_v < CAP_MIN_VOLT)
 				{
@@ -179,6 +169,7 @@ void supercap_task(void *pvParameters)
 			supercap_data_update(&supercap);
 			supercap_mode_set(&supercap);
 			supercap_control_set(&supercap);
+			supercap_graphic_draw(&supercap);
 			vTaskDelay(15);
 	}
 }

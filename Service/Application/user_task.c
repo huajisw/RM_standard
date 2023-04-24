@@ -42,7 +42,7 @@ extern Osker_Remote_Control_Struct Osker_Remote_Control_Data;
 uint32_t Flash_Data[2];
 
 float Get_Imu_Data[3];
-//Judge_Graphic_Obj_t* Circle;
+//Judge_Graphic_Obj_Handle Circle;
 
 void UserTast(void *pvParameters)
 {

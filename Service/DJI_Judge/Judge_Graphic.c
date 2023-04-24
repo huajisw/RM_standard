@@ -16,15 +16,27 @@ TaskHandle_t JudgeGraphicTask_Handler;
 //图形操作优先级查找表,由高到低依次是：删除操作、添加操作、修改操作、空操作
 uint8_t Judge_Graphic_Opt_Prio[4] = {0,2,1,3};
 //要求操作的优先级大于当前操作的优先级，那么覆盖当前操作
-#define Judge_Graphic_Obj_Apply_Opt(Obj,Opt) \
-	if(Judge_Graphic_Opt_Prio[(Opt)]>Judge_Graphic_Opt_Prio[(Obj)->Graphic_Data.operate_tpye])		\
-			(Obj)->Graphic_Data.operate_tpye = (Opt);	
+
+uint8_t Judge_Graphic_Obj_Apply_Opt(Judge_Graphic_Obj_Handle Obj,Judge_Graphic_Operation_t Opt)
+{
+	BaseType_t Ret = pdTRUE;
+	if(Obj->Graphic_Data.operate_tpye == OPT_NONE)
+	{
+			if(Obj->Graphic_Data.graphic_tpye == CHARACTER)
+					Ret = xQueueSend(DJI_Judge_Graphic.Judge_Graphic_Character_Queue,&Obj,0);	
+			else
+					Ret = xQueueSend(DJI_Judge_Graphic.Judge_Graphic_CommObj_Queue,&Obj,0);	
+	}
+	
+	if(Ret == pdTRUE && Judge_Graphic_Opt_Prio[(Opt)]>Judge_Graphic_Opt_Prio[(Obj)->Graphic_Data.operate_tpye])
+			Obj->Graphic_Data.operate_tpye = Opt;	
+}
 
 /********基础操作函数**********/
 
-uint8_t Judge_Graphic_Obj_Init(Judge_Graphic_Obj_t* Obj)
+uint8_t Judge_Graphic_Obj_Init(Judge_Graphic_Obj_Handle Obj)
 {
-		if(DJI_Judge_Graphic.Judge_Obj_Counter > 0xFFF)
+		if(DJI_Judge_Graphic.Judge_Graphic_Obj_Counter > 0xFFF)
 			return 0;
 	
 		//创建信号量
@@ -34,14 +46,14 @@ uint8_t Judge_Graphic_Obj_Init(Judge_Graphic_Obj_t* Obj)
 		
 		memset(Obj,0,sizeof(Judge_Graphic_Obj_t));
 		vListInitialiseItem((ListItem_t*)Obj);
-		Obj->Graphic_Data.graphic_name = DJI_Judge_Graphic.Judge_Obj_Counter++;
+		Obj->Graphic_Data.graphic_name = DJI_Judge_Graphic.Judge_Graphic_Obj_Counter++;
 		Obj->Graphic_Obj_Mutex = Mutex;
 	
-		List_Insert_End(&DJI_Judge_Graphic.Graphic_Obj_List,(ListItem_t*)Obj,portMAX_DELAY);
+		//List_Insert_End(&DJI_Judge_Graphic.Graphic_Obj_List,(ListItem_t*)Obj,portMAX_DELAY);
 		return 1;
 }
 
-void Judge_Graphic_Obj_Set_Color(Judge_Graphic_Obj_t* Obj,Judge_Graphic_Color_t Color)
+void Judge_Graphic_Obj_Set_Color(Judge_Graphic_Obj_Handle Obj,Judge_Graphic_Color_t Color)
 {
 		if(!Obj)
 			return;
@@ -54,7 +66,7 @@ void Judge_Graphic_Obj_Set_Color(Judge_Graphic_Obj_t* Obj,Judge_Graphic_Color_t 
 		Judge_Graphic_Obj_Unlock(Obj);
 }
 
-uint32_t Judge_Graphic_Obj_Get_Width(Judge_Graphic_Obj_t* Obj)
+uint32_t Judge_Graphic_Obj_Get_Width(Judge_Graphic_Obj_Handle Obj)
 {
 		if(!Obj)
 			return 0;
@@ -79,7 +91,7 @@ uint32_t Judge_Graphic_Obj_Get_Width(Judge_Graphic_Obj_t* Obj)
 		return W;
 }
 
-uint32_t Judge_Graphic_Obj_Get_Height(Judge_Graphic_Obj_t* Obj)
+uint32_t Judge_Graphic_Obj_Get_Height(Judge_Graphic_Obj_Handle Obj)
 {
 		if(!Obj)
 			return 0;
@@ -104,7 +116,7 @@ uint32_t Judge_Graphic_Obj_Get_Height(Judge_Graphic_Obj_t* Obj)
 		return H;
 }
 
-void Judge_Graphic_Obj_Set_Width(Judge_Graphic_Obj_t* Obj,uint32_t W)
+void Judge_Graphic_Obj_Set_Width(Judge_Graphic_Obj_Handle Obj,uint32_t W)
 {
 	  if(!Obj)
 			return;
@@ -133,7 +145,7 @@ void Judge_Graphic_Obj_Set_Width(Judge_Graphic_Obj_t* Obj,uint32_t W)
 		Judge_Graphic_Obj_Unlock(Obj);
 }
 
-void Judge_Graphic_Obj_Set_Height(Judge_Graphic_Obj_t* Obj,uint32_t H)
+void Judge_Graphic_Obj_Set_Height(Judge_Graphic_Obj_Handle Obj,uint32_t H)
 {
 	  if(!Obj)
 			return;
@@ -162,14 +174,14 @@ void Judge_Graphic_Obj_Set_Height(Judge_Graphic_Obj_t* Obj,uint32_t H)
 		Judge_Graphic_Obj_Unlock(Obj);
 }
 
-void Judge_Graphic_Obj_Set_Size(Judge_Graphic_Obj_t* Obj,uint32_t W,uint32_t H)
+void Judge_Graphic_Obj_Set_Size(Judge_Graphic_Obj_Handle Obj,uint32_t W,uint32_t H)
 {   if(!Obj)
 	     return;
 		Judge_Graphic_Obj_Set_Width(Obj,W);
 		Judge_Graphic_Obj_Set_Height(Obj,H);
 }
 
-uint32_t Judge_Graphic_Obj_Get_X(Judge_Graphic_Obj_t* Obj)
+uint32_t Judge_Graphic_Obj_Get_X(Judge_Graphic_Obj_Handle Obj)
 {   
 	  if(!Obj)
 			return 0;
@@ -195,7 +207,7 @@ uint32_t Judge_Graphic_Obj_Get_X(Judge_Graphic_Obj_t* Obj)
 		return X;
 }
 
-uint32_t Judge_Graphic_Obj_Get_Y(Judge_Graphic_Obj_t* Obj)
+uint32_t Judge_Graphic_Obj_Get_Y(Judge_Graphic_Obj_Handle Obj)
 {   
 		if(!Obj)
 			return 0;
@@ -222,7 +234,7 @@ uint32_t Judge_Graphic_Obj_Get_Y(Judge_Graphic_Obj_t* Obj)
 }
 
 
-void Judge_Graphic_Obj_Set_X(Judge_Graphic_Obj_t* Obj,uint32_t X)
+void Judge_Graphic_Obj_Set_X(Judge_Graphic_Obj_Handle Obj,uint32_t X)
 {   
 	  if(!Obj)
 			return;
@@ -248,7 +260,7 @@ void Judge_Graphic_Obj_Set_X(Judge_Graphic_Obj_t* Obj,uint32_t X)
 		Judge_Graphic_Obj_Unlock(Obj);
 }
 
-void Judge_Graphic_Obj_Set_Y(Judge_Graphic_Obj_t* Obj,uint32_t Y)
+void Judge_Graphic_Obj_Set_Y(Judge_Graphic_Obj_Handle Obj,uint32_t Y)
 {    
 	  if(!Obj)
 			return;
@@ -275,7 +287,7 @@ void Judge_Graphic_Obj_Set_Y(Judge_Graphic_Obj_t* Obj,uint32_t Y)
 		Judge_Graphic_Obj_Unlock(Obj);
 }
 
-void Judge_Graphic_Obj_Set_Pos(Judge_Graphic_Obj_t* Obj,uint32_t X,uint32_t Y)
+void Judge_Graphic_Obj_Set_Pos(Judge_Graphic_Obj_Handle Obj,uint32_t X,uint32_t Y)
 {   
 	if(!Obj)
 		return;
@@ -283,7 +295,7 @@ void Judge_Graphic_Obj_Set_Pos(Judge_Graphic_Obj_t* Obj,uint32_t X,uint32_t Y)
 		Judge_Graphic_Obj_Set_Y(Obj,Y);
 }
 
-uint32_t Judge_Graphic_Obj_Get_Center_X(Judge_Graphic_Obj_t* Obj)
+uint32_t Judge_Graphic_Obj_Get_Center_X(Judge_Graphic_Obj_Handle Obj)
 {   
 		if(!Obj)
 			return 0;
@@ -304,7 +316,7 @@ uint32_t Judge_Graphic_Obj_Get_Center_X(Judge_Graphic_Obj_t* Obj)
 		return X;
 }
 
-uint32_t Judge_Graphic_Obj_Get_Center_Y(Judge_Graphic_Obj_t* Obj)
+uint32_t Judge_Graphic_Obj_Get_Center_Y(Judge_Graphic_Obj_Handle Obj)
 {   
 		if(!Obj)
 			return 0;
@@ -325,7 +337,7 @@ uint32_t Judge_Graphic_Obj_Get_Center_Y(Judge_Graphic_Obj_t* Obj)
 		return Y;
 }
 
-void Judge_Graphic_Obj_Set_Center_X(Judge_Graphic_Obj_t* Obj,uint32_t Cx)
+void Judge_Graphic_Obj_Set_Center_X(Judge_Graphic_Obj_Handle Obj,uint32_t Cx)
 {   
 	  if(!Obj)
 			return;
@@ -360,7 +372,7 @@ void Judge_Graphic_Obj_Set_Center_X(Judge_Graphic_Obj_t* Obj,uint32_t Cx)
 		Judge_Graphic_Obj_Unlock(Obj);
 }
 
-void Judge_Graphic_Obj_Set_Center_Y(Judge_Graphic_Obj_t* Obj,uint32_t Cy)
+void Judge_Graphic_Obj_Set_Center_Y(Judge_Graphic_Obj_Handle Obj,uint32_t Cy)
 {   
 	  if(!Obj)
 			return ;
@@ -388,7 +400,7 @@ void Judge_Graphic_Obj_Set_Center_Y(Judge_Graphic_Obj_t* Obj,uint32_t Cy)
 		Judge_Graphic_Obj_Unlock(Obj);
 }
 
-void Judge_Graphic_Obj_Set_Center_Pos(Judge_Graphic_Obj_t* Obj,uint32_t Cx,uint32_t Cy)
+void Judge_Graphic_Obj_Set_Center_Pos(Judge_Graphic_Obj_Handle Obj,uint32_t Cx,uint32_t Cy)
 {    
 	  if(!Obj)
 			return;
@@ -396,7 +408,7 @@ void Judge_Graphic_Obj_Set_Center_Pos(Judge_Graphic_Obj_t* Obj,uint32_t Cx,uint3
 		Judge_Graphic_Obj_Set_Center_Y(Obj,Cy);
 }
 
-uint32_t Judge_Graphic_Obj_Get_Radius_A(Judge_Graphic_Obj_t* Obj)
+uint32_t Judge_Graphic_Obj_Get_Radius_A(Judge_Graphic_Obj_Handle Obj)
 {   
 	  if(!Obj)
 			return 0;
@@ -420,7 +432,7 @@ uint32_t Judge_Graphic_Obj_Get_Radius_A(Judge_Graphic_Obj_t* Obj)
 		return Ra;
 }
 
-uint32_t Judge_Graphic_Obj_Get_Radius_B(Judge_Graphic_Obj_t* Obj)
+uint32_t Judge_Graphic_Obj_Get_Radius_B(Judge_Graphic_Obj_Handle Obj)
 {   
 	  if(!Obj)
 			return 0;
@@ -444,7 +456,7 @@ uint32_t Judge_Graphic_Obj_Get_Radius_B(Judge_Graphic_Obj_t* Obj)
 		return Rb;
 }
 
-void Judge_Graphic_Obj_Set_Radius_A(Judge_Graphic_Obj_t* Obj,uint32_t Ra)
+void Judge_Graphic_Obj_Set_Radius_A(Judge_Graphic_Obj_Handle Obj,uint32_t Ra)
 {   
 	  if(!Obj)
 			return;
@@ -470,7 +482,7 @@ void Judge_Graphic_Obj_Set_Radius_A(Judge_Graphic_Obj_t* Obj,uint32_t Ra)
 		Judge_Graphic_Obj_Unlock(Obj);
 }
 
-void Judge_Graphic_Obj_Set_Radius_B(Judge_Graphic_Obj_t* Obj,uint32_t Rb)
+void Judge_Graphic_Obj_Set_Radius_B(Judge_Graphic_Obj_Handle Obj,uint32_t Rb)
 {   
 	  if(!Obj)
 			return;
@@ -495,7 +507,7 @@ void Judge_Graphic_Obj_Set_Radius_B(Judge_Graphic_Obj_t* Obj,uint32_t Rb)
 		Judge_Graphic_Obj_Unlock(Obj);
 }
 
-uint32_t Judge_Graphic_Obj_Get_Start_Angle(Judge_Graphic_Obj_t* Obj,uint32_t Start_Angle)
+uint32_t Judge_Graphic_Obj_Get_Start_Angle(Judge_Graphic_Obj_Handle Obj,uint32_t Start_Angle)
 {   
 		if(!Obj)
 			return 0;
@@ -511,7 +523,7 @@ uint32_t Judge_Graphic_Obj_Get_Start_Angle(Judge_Graphic_Obj_t* Obj,uint32_t Sta
 		return As;
 }
 
-uint32_t Judge_Graphic_Obj_Get_End_Angle(Judge_Graphic_Obj_t* Obj,uint32_t End_Angle)
+uint32_t Judge_Graphic_Obj_Get_End_Angle(Judge_Graphic_Obj_Handle Obj,uint32_t End_Angle)
 {
 	  if(!Obj)
 			return 0;
@@ -528,7 +540,7 @@ uint32_t Judge_Graphic_Obj_Get_End_Angle(Judge_Graphic_Obj_t* Obj,uint32_t End_A
 } 
 
 
-void Judge_Graphic_Obj_Set_Start_Angle(Judge_Graphic_Obj_t* Obj,uint32_t Start_Angle)
+void Judge_Graphic_Obj_Set_Start_Angle(Judge_Graphic_Obj_Handle Obj,uint32_t Start_Angle)
 {   
 	  if(!Obj)
 			return;
@@ -543,7 +555,7 @@ void Judge_Graphic_Obj_Set_Start_Angle(Judge_Graphic_Obj_t* Obj,uint32_t Start_A
 		}
 }
 
-void Judge_Graphic_Obj_Set_End_Angle(Judge_Graphic_Obj_t* Obj,uint32_t End_Angle)
+void Judge_Graphic_Obj_Set_End_Angle(Judge_Graphic_Obj_Handle Obj,uint32_t End_Angle)
 {   
 	  if(!Obj)
 			return;
@@ -558,7 +570,7 @@ void Judge_Graphic_Obj_Set_End_Angle(Judge_Graphic_Obj_t* Obj,uint32_t End_Angle
 		}
 } 
 
-void Judge_Graphic_Obj_Set_Radius(Judge_Graphic_Obj_t* Obj,uint32_t R)
+void Judge_Graphic_Obj_Set_Radius(Judge_Graphic_Obj_Handle Obj,uint32_t R)
 {   
 	  if(!Obj)
 			return;
@@ -568,7 +580,7 @@ void Judge_Graphic_Obj_Set_Radius(Judge_Graphic_Obj_t* Obj,uint32_t R)
 	
 }
 
-void Judge_Graphic_Obj_Set_Line_Width(Judge_Graphic_Obj_t* Obj,uint32_t W)
+void Judge_Graphic_Obj_Set_Line_Width(Judge_Graphic_Obj_Handle Obj,uint32_t W)
 {
 	  if(!Obj)
 			return;
@@ -580,7 +592,7 @@ void Judge_Graphic_Obj_Set_Line_Width(Judge_Graphic_Obj_t* Obj,uint32_t W)
 		Judge_Graphic_Obj_Unlock(Obj);
 }
 
-void Judge_Graphic_Obj_Set_Val(Judge_Graphic_Obj_t* Obj,int32_t Val)
+void Judge_Graphic_Obj_Set_Val(Judge_Graphic_Obj_Handle Obj,int32_t Val)
 {
 		if(!Obj)
 			return;
@@ -596,7 +608,7 @@ void Judge_Graphic_Obj_Set_Val(Judge_Graphic_Obj_t* Obj,int32_t Val)
 		}
 }
 
-void Judge_Graphic_Obj_Del(Judge_Graphic_Obj_t* Obj)
+void Judge_Graphic_Obj_Del(Judge_Graphic_Obj_Handle Obj)
 {
 	  if(!Obj)
 			return;
@@ -606,9 +618,9 @@ void Judge_Graphic_Obj_Del(Judge_Graphic_Obj_t* Obj)
 }
 /********图形创建函数**********/
 
-Judge_Graphic_Obj_t* Judge_Graphic_Ellipse_Create(uint32_t Cx,uint32_t Cy,uint32_t Ra,uint32_t Rb,uint32_t W)
+Judge_Graphic_Obj_Handle Judge_Graphic_Ellipse_Create(uint32_t Cx,uint32_t Cy,uint32_t Ra,uint32_t Rb,uint32_t W)
 {
-		Judge_Graphic_Obj_t* Ellipse = pvPortMalloc(sizeof(Judge_Graphic_Obj_t));
+		Judge_Graphic_Obj_Handle Ellipse = pvPortMalloc(sizeof(Judge_Graphic_Obj_t));
 		if(!Ellipse)
 			return NULL;
 		
@@ -630,9 +642,9 @@ Judge_Graphic_Obj_t* Judge_Graphic_Ellipse_Create(uint32_t Cx,uint32_t Cy,uint32
 		return  Ellipse;
 }
 
-Judge_Graphic_Obj_t* Judge_Graphic_Circle_Create(uint32_t Cx,uint32_t Cy,uint32_t R,uint32_t W)
+Judge_Graphic_Obj_Handle Judge_Graphic_Circle_Create(uint32_t Cx,uint32_t Cy,uint32_t R,uint32_t W)
 {
-		Judge_Graphic_Obj_t* Circle = pvPortMalloc(sizeof(Judge_Graphic_Obj_t));
+		Judge_Graphic_Obj_Handle Circle = pvPortMalloc(sizeof(Judge_Graphic_Obj_t));
 		if(!Circle)
 			return NULL;
 		
@@ -653,9 +665,9 @@ Judge_Graphic_Obj_t* Judge_Graphic_Circle_Create(uint32_t Cx,uint32_t Cy,uint32_
 		return Circle;
 }
 
-Judge_Graphic_Obj_t* Judge_Graphic_Line_Create(uint32_t X1,uint32_t Y1,uint32_t X2,uint32_t Y2,uint32_t W)
+Judge_Graphic_Obj_Handle Judge_Graphic_Line_Create(uint32_t X1,uint32_t Y1,uint32_t X2,uint32_t Y2,uint32_t W)
 {
-		Judge_Graphic_Obj_t* Line = pvPortMalloc(sizeof(Judge_Graphic_Obj_t));
+		Judge_Graphic_Obj_Handle Line = pvPortMalloc(sizeof(Judge_Graphic_Obj_t));
 		if(!Line)
 			return NULL;
 		
@@ -677,9 +689,9 @@ Judge_Graphic_Obj_t* Judge_Graphic_Line_Create(uint32_t X1,uint32_t Y1,uint32_t 
 		return Line;
 }
 
-Judge_Graphic_Obj_t* Judge_Graphic_Rect_Create(uint32_t X1,uint32_t Y1,uint32_t X2,uint32_t Y2,uint32_t W)
+Judge_Graphic_Obj_Handle Judge_Graphic_Rect_Create(uint32_t X1,uint32_t Y1,uint32_t X2,uint32_t Y2,uint32_t W)
 {
-		Judge_Graphic_Obj_t* Rect = pvPortMalloc(sizeof(Judge_Graphic_Obj_t));
+		Judge_Graphic_Obj_Handle Rect = pvPortMalloc(sizeof(Judge_Graphic_Obj_t));
 		if(!Rect)
 			return NULL;
 		
@@ -701,9 +713,9 @@ Judge_Graphic_Obj_t* Judge_Graphic_Rect_Create(uint32_t X1,uint32_t Y1,uint32_t 
 		return Rect;
 }
 
-Judge_Graphic_Obj_t* Judge_Graphic_Arc_Create(uint32_t A1,uint32_t A2,uint32_t Cx, uint32_t Cy,uint32_t R,uint32_t W)
+Judge_Graphic_Obj_Handle Judge_Graphic_Arc_Create(uint32_t A1,uint32_t A2,uint32_t Cx, uint32_t Cy,uint32_t R,uint32_t W)
 {
-		Judge_Graphic_Obj_t* Arc = pvPortMalloc(sizeof(Judge_Graphic_Obj_t));
+		Judge_Graphic_Obj_Handle Arc = pvPortMalloc(sizeof(Judge_Graphic_Obj_t));
 		if(!Arc)
 			return NULL;
 		
@@ -727,9 +739,9 @@ Judge_Graphic_Obj_t* Judge_Graphic_Arc_Create(uint32_t A1,uint32_t A2,uint32_t C
 		return Arc;
 }
 
-Judge_Graphic_Obj_t* Judge_Graphic_Float_Create(uint32_t X,uint32_t Y,uint32_t Font_Size,float Val)
+Judge_Graphic_Obj_Handle Judge_Graphic_Float_Create(uint32_t X,uint32_t Y,uint32_t Font_Size,float Val)
 {
-		Judge_Graphic_Obj_t* Float = pvPortMalloc(sizeof(Judge_Graphic_Obj_t));
+		Judge_Graphic_Obj_Handle Float = pvPortMalloc(sizeof(Judge_Graphic_Obj_t));
 		if(!Float)
 			return NULL;
 		
@@ -751,9 +763,9 @@ Judge_Graphic_Obj_t* Judge_Graphic_Float_Create(uint32_t X,uint32_t Y,uint32_t F
 		return Float;
 }
 
-Judge_Graphic_Obj_t* Judge_Graphic_Integer_Create(uint32_t X,uint32_t Y,uint32_t Font_Size,int32_t Val)
+Judge_Graphic_Obj_Handle Judge_Graphic_Integer_Create(uint32_t X,uint32_t Y,uint32_t Font_Size,int32_t Val)
 {
-		Judge_Graphic_Obj_t* Int = pvPortMalloc(sizeof(Judge_Graphic_Obj_t));
+		Judge_Graphic_Obj_Handle Int = pvPortMalloc(sizeof(Judge_Graphic_Obj_t));
 		if(!Int)
 			return NULL;
 		
@@ -776,12 +788,12 @@ Judge_Graphic_Obj_t* Judge_Graphic_Integer_Create(uint32_t X,uint32_t Y,uint32_t
 		return Int;
 }
 
-Judge_Graphic_Obj_t* Judge_Graphic_Character_Create(uint32_t X,uint32_t Y,uint32_t Font_Size,char* Str)
+Judge_Graphic_Obj_Handle Judge_Graphic_Character_Create(uint32_t X,uint32_t Y,uint32_t Font_Size,char* Str)
 {    
 	  if(!Str)
 			return NULL;
 	
-		Judge_Graphic_Obj_t* Character = pvPortMalloc(sizeof(Judge_Graphic_Obj_t)+JUDGE_GRAPHIC_CHARACTER_LEN);
+		Judge_Graphic_Obj_Handle Character = pvPortMalloc(sizeof(Judge_Graphic_Obj_t)+JUDGE_GRAPHIC_CHARACTER_LEN);
 		if(!Character)
 			return NULL;
 		
@@ -797,7 +809,7 @@ Judge_Graphic_Obj_t* Judge_Graphic_Character_Create(uint32_t X,uint32_t Y,uint32
 		Character->Graphic_Data.start_y = Y;
 		Character->Graphic_Data.end_angle = Character_Len;
 		Character->Graphic_Data.start_angle = Font_Size<10?10:Font_Size;
-		Character->Graphic_Data.width = Font_Size/10<4?4:Font_Size/10;
+		Character->Graphic_Data.width = Font_Size/10<2?2:Font_Size/10;
 			
 		char* Character_Addr = (char*)((uint32_t)Character+sizeof(Judge_Graphic_Obj_t));
 		memset(Character_Addr,0,JUDGE_GRAPHIC_CHARACTER_LEN);
@@ -808,214 +820,127 @@ Judge_Graphic_Obj_t* Judge_Graphic_Character_Create(uint32_t X,uint32_t Y,uint32
 		return Character;
 }
 
-//static void Judge_Graphic_Obj_Del_Check(Judge_Graphic_Obj_t* Obj)
-//{
-//		Judge_Assert(Obj);
-//		if(Obj->Graphic_Data.operate_tpye == OPT_DELETE)
-//		{
-//			if(Obj->Ext_Data)
-//				vPortFree(Obj->Ext_Data);
-//			vPortFree(Obj);
-//		}
-//		else
-//		{
-//				Obj->Graphic_Data.operate_tpye = OPT_NONE;
-//		}
-//}
-
 
 void Judge_Graphic_Init()
 {
-		DJI_Judge_Graphic.Judge_Obj_Counter = 1;
-		//DJI_Judge_Graphic.Judge_Graphic_CommonObj_Send_Queue = xQueueCreate();
-		List_Init(&DJI_Judge_Graphic.Graphic_Obj_List);
+		DJI_Judge_Graphic.Judge_Graphic_Obj_Counter = 1;
+		DJI_Judge_Graphic.Current_Step = 0;
+		DJI_Judge_Graphic.Judge_Graphic_Character_Queue = xQueueCreate(50,sizeof(Judge_Graphic_Obj_Handle));
+		DJI_Judge_Graphic.Judge_Graphic_CommObj_Queue = xQueueCreate(50,sizeof(Judge_Graphic_Obj_Handle));
 }
 
-//typedef __packed struct
-//{
-//		uint8_t Num_Of_CommonObj_To_Send;	
-//		Judge_Graphic_Obj_t* CommonObj_Buff[7];
-//}Judge_Graphic_CommonObj_To_Send_t;
-
-static void Judge_Graphic_Obj_Del_Asyn(Judge_Graphic_Obj_t* Judge_Graphic_Obj)
+static uint8_t Judge_Graphic_Character_Send(void)
 {
-		//先把对象移出链表
-		List_Remove(&DJI_Judge_Graphic.Graphic_Obj_List,(ListItem_t*)Judge_Graphic_Obj,portMAX_DELAY);
-		//删除互斥量
-		vSemaphoreDelete(Judge_Graphic_Obj->Graphic_Obj_Mutex);
-		//释放对象占用的内存
-		vPortFree(Judge_Graphic_Obj);
-}
-
-static void Judge_Graphic_Character_Send(Judge_Graphic_Obj_t* Judge_Graphic_Character)
-{
-		uint8_t* Send_Buff = pvPortMalloc(JUDGE_GRAPHIC_DATA_LEN+JUDGE_GRAPHIC_CHARACTER_LEN);
-		//如果申请内存成功，那么写入数据，否则直接解锁对象
-		if(Send_Buff)
-		{
-				memcpy(Send_Buff,&Judge_Graphic_Character->Graphic_Data,JUDGE_GRAPHIC_DATA_LEN);
-				uint32_t Character_Addr = (uint32_t)Judge_Graphic_Character+sizeof(Judge_Graphic_Obj_t);
-				memcpy(Send_Buff+JUDGE_GRAPHIC_DATA_LEN,(void*)(Character_Addr),JUDGE_GRAPHIC_CHARACTER_LEN);
-				//如果对象需要删除，那么直接删除，否则设置空操作后解锁
-				if(Judge_Graphic_Character->Graphic_Data.operate_tpye==OPT_DELETE)
-				{
-					Judge_Graphic_Obj_Del_Asyn(Judge_Graphic_Character);
-				}
-				else
-				{
-					Judge_Graphic_Character->Graphic_Data.operate_tpye=OPT_NONE;
-				}
-				//最后发送数据
-				Judge_Student_Data_Send(Send_Buff,JUDGE_GRAPHIC_DATA_LEN+JUDGE_GRAPHIC_CHARACTER_LEN,GRAPHIC_CMDID_CHARACTER,Target_Client);
-				vPortFree(Send_Buff);
-		}
-}
-
-static uint8_t Judge_Graphic_CommonObj_Send(Judge_Graphic_Obj_t* Judge_Graphic_CommonObj)
-{	
-			uint16_t	CmdID = GRAPHIC_CMDID_ONE;
-			uint8_t* Send_Buff = pvPortMalloc(JUDGE_GRAPHIC_DATA_LEN);
-			//如果申请失败，令需要发送的数量为0
-			if(Send_Buff)
-			{
-					memcpy(Send_Buff,&Judge_Graphic_CommonObj->Graphic_Data,JUDGE_GRAPHIC_DATA_LEN);
-					//看是否是删除操作，如果是，那么删除这个对象，否则直接设为空操作并解锁
-					if(Judge_Graphic_CommonObj->Graphic_Data.operate_tpye==OPT_DELETE)
-					{
-						Judge_Graphic_Obj_Del_Asyn(Judge_Graphic_CommonObj);
-					}
-					else
-					{
-						Judge_Graphic_CommonObj->Graphic_Data.operate_tpye = OPT_NONE;
-					}
-					Judge_Student_Data_Send(Send_Buff,JUDGE_GRAPHIC_DATA_LEN,CmdID,Target_Client);
-					vPortFree(Send_Buff);
-			}
-			
-}
-
-int8_t Judge_Graphic_Obj_Iterator(ListItem_t* ListItem,void* User_Data1,void* User_Data2)
-{
-		Judge_Graphic_Obj_t* Obj = (Judge_Graphic_Obj_t*)(ListItem);
-		//锁住图形对象
-		Judge_Graphic_Obj_Lock(Obj);
-		//
-		if(Obj->Graphic_Data.operate_tpye!=OPT_NONE)
-		{
-				if(Obj->Graphic_Data.graphic_tpye==CHARACTER)
-				{
-						//字符串类型直接发送
-						Judge_Graphic_Character_Send(Obj);
-				}
-				else
-				{	
-						//其余的类型放在发送队列中，之后统一发送
-						Judge_Graphic_CommonObj_Send(Obj);
-				}
-		}
-		//解锁图形对象
-		Judge_Graphic_Obj_Unlock(Obj);
+		Judge_Graphic_Obj_Handle Judge_Graphic_Character;
+		if(xQueueReceive(DJI_Judge_Graphic.Judge_Graphic_Character_Queue,&Judge_Graphic_Character,0) != pdTRUE)
+				return 0;
 		
-		//如果两个发送缓冲区都满了，那么停止遍历，剩下的下次遍历
-
+		uint8_t* Send_Buff = pvPortMalloc(JUDGE_GRAPHIC_DATA_LEN+JUDGE_GRAPHIC_CHARACTER_LEN);
+		if(!Send_Buff)
+				return 0;
+		
+		Judge_Graphic_Obj_Lock(Judge_Graphic_Character);
+		memcpy(Send_Buff,&Judge_Graphic_Character->Graphic_Data,JUDGE_GRAPHIC_DATA_LEN);
+		uint32_t Character_Addr = (uint32_t)Judge_Graphic_Character+sizeof(Judge_Graphic_Obj_t);
+		memset(Send_Buff+JUDGE_GRAPHIC_DATA_LEN,0,JUDGE_GRAPHIC_CHARACTER_LEN);
+		memcpy(Send_Buff+JUDGE_GRAPHIC_DATA_LEN,(uint8_t*)(Character_Addr),JUDGE_GRAPHIC_CHARACTER_LEN);
+		
+		Judge_Graphic_Character->Graphic_Data.operate_tpye = OPT_NONE;
+		Judge_Graphic_Obj_Unlock(Judge_Graphic_Character);
+		
+		Judge_Student_Data_Send(Send_Buff,JUDGE_GRAPHIC_DATA_LEN+JUDGE_GRAPHIC_CHARACTER_LEN,GRAPHIC_CMDID_CHARACTER,Target_Client);
+		vPortFree(Send_Buff);
 		return 1;
 }
 
+static uint8_t Judge_Graphic_CommObj_Send(void)
+{
+		uint32_t Total = uxQueueMessagesWaiting(DJI_Judge_Graphic.Judge_Graphic_CommObj_Queue);
+		if(Total == 0)
+			return 0;
+		//决定要发送多少个对象
+		uint8_t Num_To_Send;
+		uint16_t CmdID = 0;
+		if(Total>=7)
+		{
+			Num_To_Send = 7;
+			CmdID = GRAPHIC_CMDID_SEVEN;
+		}
+		else if(Total>=5)
+		{
+			Num_To_Send = 5;
+			CmdID = GRAPHIC_CMDID_FIVE;
+		}
+		else if(Total>=2)
+		{
+			Num_To_Send = 2;
+			CmdID = GRAPHIC_CMDID_TWO;
+		}
+		else if(Total>=1)
+		{
+			Num_To_Send = 1;
+			CmdID = GRAPHIC_CMDID_ONE;
+		}
+		
+		//申请发送缓冲区
+		uint8_t* Send_Buff = pvPortMalloc(JUDGE_GRAPHIC_DATA_LEN*Num_To_Send);
+		if(!Send_Buff)
+			return 0;
+		
+		for(uint32_t i = 0; i < Num_To_Send; i++)
+		{
+				//从队列中取出对象，如果失败，发送一个空操作
+				Judge_Graphic_Obj_Handle Judge_Graphic_CommObj;
+				if(xQueueReceive(DJI_Judge_Graphic.Judge_Graphic_CommObj_Queue,&Judge_Graphic_CommObj,0) == pdTRUE)
+				{
+						//锁定对象
+						Judge_Graphic_Obj_Lock(Judge_Graphic_CommObj);
+						//拷贝对象数据到发送缓冲区
+						memcpy(&Send_Buff[i*JUDGE_GRAPHIC_DATA_LEN],&Judge_Graphic_CommObj->Graphic_Data,JUDGE_GRAPHIC_DATA_LEN);
+						//如果该对象需要被删除，那么直接删除，否则解锁对象
+						if(Judge_Graphic_CommObj->Graphic_Data.operate_tpye==OPT_DELETE)
+						{
+							//删除互斥量
+							vSemaphoreDelete(Judge_Graphic_CommObj->Graphic_Obj_Mutex);
+							//释放对象占用的内存
+							vPortFree(Judge_Graphic_CommObj);
+						}
+						else
+						{
+							Judge_Graphic_CommObj->Graphic_Data.operate_tpye = OPT_NONE;
+							Judge_Graphic_Obj_Unlock(Judge_Graphic_CommObj);
+						}
+				}
+				else
+				{
+						Judge_Graphic_CommObj = (Judge_Graphic_Obj_Handle)(&Send_Buff[i*JUDGE_GRAPHIC_DATA_LEN]);
+						Judge_Graphic_CommObj->Graphic_Data.operate_tpye = OPT_NONE;
+				}
+		}
+		
+		Judge_Student_Data_Send(Send_Buff,Num_To_Send*JUDGE_GRAPHIC_DATA_LEN,CmdID,Target_Client);
+		vPortFree(Send_Buff);
+		return 1;
+}
 
-//static void Judge_Graphic_Obj_Send(Judge_Graphic_Obj_To_Send_t* Graphic_Obj_To_Send)
-//{
-//		if(Graphic_Obj_To_Send->Num_Of_Character_To_Send)
-//		{
-//				uint8_t* Send_Buff = pvPortMalloc(JUDGE_GRAPHIC_DATA_LEN+JUDGE_GRAPHIC_CHARACTER_LEN);
-//				//如果申请内存成功，那么写入数据，否则直接解锁对象
-//				if(Send_Buff)
-//				{
-//						memcpy(Send_Buff,&Graphic_Obj_To_Send->Character_To_Send->Graphic_Data,JUDGE_GRAPHIC_DATA_LEN);
-//						uint32_t Character_Addr = (uint32_t)Graphic_Obj_To_Send->Character_To_Send+sizeof(Judge_Graphic_Obj_t);
-//						memcpy(Send_Buff+JUDGE_GRAPHIC_DATA_LEN,(void*)(Character_Addr),JUDGE_GRAPHIC_CHARACTER_LEN);
-//						//如果对象需要删除，那么直接删除，否则设置空操作后解锁
-//						if(Graphic_Obj_To_Send->Character_To_Send->Graphic_Data.operate_tpye==OPT_DELETE)
-//						{
-//							Judge_Graphic_Obj_Del_Asyn(Graphic_Obj_To_Send->Character_To_Send);
-//						}
-//						else
-//						{
-//							Graphic_Obj_To_Send->Character_To_Send->Graphic_Data.operate_tpye=OPT_NONE;
-//							Judge_Graphic_Obj_Unlock(Graphic_Obj_To_Send->Character_To_Send);
-//						}
-//						//最后发送数据
-//						Judge_Student_Data_Send(Send_Buff,JUDGE_GRAPHIC_DATA_LEN+JUDGE_GRAPHIC_CHARACTER_LEN,GRAPHIC_CMDID_CHARACTER,Target_Client);
-//				}
-//				else
-//				{
-//						Judge_Graphic_Obj_Unlock(Graphic_Obj_To_Send->Character_To_Send);
-//				}
-//		}
-//		
-//		if(Graphic_Obj_To_Send->Num_Of_CommonObj_To_Send)
-//		{
-//				uint8_t Item_To_Send = 0;
-//				uint32_t CmdID = 0;
-//				if(Graphic_Obj_To_Send->Num_Of_CommonObj_To_Send>6)
-//				{
-//					Item_To_Send = 7;
-//					CmdID = GRAPHIC_CMDID_SEVEN;
-//				}
-//				else if(Graphic_Obj_To_Send->Num_Of_CommonObj_To_Send>4)
-//				{
-//					Item_To_Send = 5;
-//					CmdID = GRAPHIC_CMDID_FIVE;
-//				}
-//				else if(Graphic_Obj_To_Send->Num_Of_CommonObj_To_Send>1)
-//				{
-//					Item_To_Send = 2;
-//					CmdID = GRAPHIC_CMDID_TWO;
-//				}
-//				else if(Graphic_Obj_To_Send->Num_Of_CommonObj_To_Send>0)
-//				{
-//					Item_To_Send = 1;
-//					CmdID = GRAPHIC_CMDID_ONE;
-//				}
-//				
-//				uint8_t* Send_Buff = pvPortMalloc(JUDGE_GRAPHIC_DATA_LEN*Item_To_Send);
-//				//如果申请失败，令需要发送的数量为0
-//				if(!Send_Buff)
-//						Item_To_Send = 0;
-//				
-//				for(uint8_t i = 0;i < Graphic_Obj_To_Send->Num_Of_CommonObj_To_Send;i++)
-//				{
-//						//如果需要发送，那么写入发送缓冲区，否则直接解锁
-//						if(i<Item_To_Send)
-//						{
-//							memcpy(&Send_Buff[i*JUDGE_GRAPHIC_DATA_LEN],&Graphic_Obj_To_Send->CommonObj_To_Send[i]->Graphic_Data,JUDGE_GRAPHIC_DATA_LEN);
-//							//看是否是删除操作，如果是，那么删除这个对象，否则直接设为空操作并解锁
-//							if(Graphic_Obj_To_Send->CommonObj_To_Send[i]->Graphic_Data.operate_tpye==OPT_DELETE)
-//							{
-//								Judge_Graphic_Obj_Del_Asyn(Graphic_Obj_To_Send->CommonObj_To_Send[i]);
-//							}
-//							else
-//							{
-//								Graphic_Obj_To_Send->CommonObj_To_Send[i]->Graphic_Data.operate_tpye = OPT_NONE;
-//								Judge_Graphic_Obj_Unlock(Graphic_Obj_To_Send->CommonObj_To_Send[i]);
-//							}
-//							
-//						}
-//						else
-//						{
-//								Judge_Graphic_Obj_Unlock(Graphic_Obj_To_Send->CommonObj_To_Send[i]);
-//						}
-//				}
-//				
-//				if(Item_To_Send)
-//						Judge_Student_Data_Send(Send_Buff,Item_To_Send*JUDGE_GRAPHIC_DATA_LEN,CmdID,Target_Client);
-//		}
-//		
-//}
 
 void Judge_Graphic_Handler(void)
 {
 		if(Is_Judge_Online())
 		{
-			Iterate_All_ListItem(&DJI_Judge_Graphic.Graphic_Obj_List,NULL,NULL,Judge_Graphic_Obj_Iterator);	
+				if(DJI_Judge_Graphic.Current_Step == 1)
+				{
+						if(Judge_Graphic_CommObj_Send()==0)
+							Judge_Graphic_Character_Send();
+						
+						DJI_Judge_Graphic.Current_Step = 0;
+				}
+				else
+				{
+						if(Judge_Graphic_Character_Send()==0)
+							Judge_Graphic_CommObj_Send();
+						
+						DJI_Judge_Graphic.Current_Step = 1;
+				}
 		}
 }

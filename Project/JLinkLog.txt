@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 T3C38 000:066.423   SEGGER J-Link V7.58 Log File
 T3C38 000:066.993   DLL Compiled: Nov  4 2021 16:23:13
 T3C38 000:067.030   Logging started @ 2023-04-20 15:13
@@ -2055,3 +2056,76 @@ T3C38 154:380.419   CPU_ReadMem(4 bytes @ 0xE0001000)
 T3C38 154:409.824 - 30.732ms
 T3C38 154:409.908   
 T3C38 154:409.938   Closed
+=======
+T2460 000:170.882   SEGGER J-Link V7.58 Log File
+T2460 000:171.624   DLL Compiled: Nov  4 2021 16:23:13
+T2460 000:171.659   Logging started @ 2023-04-24 09:57
+T2460 000:171.689 - 171.705ms
+T2460 000:171.745 JLINK_SetWarnOutHandler(...)
+T2460 000:171.783 - 0.054ms
+T2460 000:171.823 JLINK_OpenEx(...)
+T2460 000:175.834   Firmware: J-Link ARM-OB STM32 compiled Aug 22 2012 19:52:04
+T2460 000:176.854   Firmware: J-Link ARM-OB STM32 compiled Aug 22 2012 19:52:04
+T2460 000:180.470   Hardware: V7.00
+T2460 000:180.590   S/N: 20090928
+T2460 000:180.662   OEM: SEGGER
+T2460 000:180.736   Feature(s): RDI,FlashDL,FlashBP,JFlash,GDBFull
+T2460 000:183.554   TELNET listener socket opened on port 19021
+T2460 000:184.286   WEBSRV WEBSRV_Init(): Starting webserver thread(s)
+T2460 000:185.027   WEBSRV Webserver running on local port 19080
+T2460 000:258.450 - 86.697ms returns "O.K."
+T2460 000:258.624 JLINK_GetEmuCaps()
+T2460 000:258.663 - 0.055ms returns 0x88EA5833
+T2460 000:258.724 JLINK_TIF_GetAvailable(...)
+T2460 000:259.114 - 0.455ms
+T2460 000:259.233 JLINK_SetErrorOutHandler(...)
+T2460 000:259.268 - 0.051ms
+T2460 000:259.360 JLINK_ExecCommand("ProjectFile = "C:\Users\1\Desktop\UÅÌ ÍêÕû²½±ø\Project\JLinkSettings.ini"", ...). 
+T2460 000:297.727   Ref file found at: C:\Keil_v5\ARM\Segger\JLinkDevices.ref
+T2460 000:298.043   XML referenced by ref file: C:\Program Files\SEGGER\JLink\JLinkDevices.xml
+T2460 000:300.099   C:\Program Files\SEGGER\JLink\JLinkDevices.xml evaluated successfully.
+T2460 000:376.130   Device "STM32F427II" selected.
+T2460 000:376.667 - 117.318ms returns 0x00
+T2460 000:383.162 JLINK_ExecCommand("Device = STM32F427IIHx", ...). 
+T2460 000:390.983   Device "STM32F427II" selected.
+T2460 000:391.540 - 8.359ms returns 0x00
+T2460 000:391.567 JLINK_ExecCommand("DisableConnectionTimeout", ...). 
+T2460 000:391.585 - 0.008ms returns 0x01
+T2460 000:391.599 JLINK_GetHardwareVersion()
+T2460 000:391.609 - 0.015ms returns 70000
+T2460 000:391.623 JLINK_GetDLLVersion()
+T2460 000:391.641 - 0.022ms returns 75800
+T2460 000:391.654 JLINK_GetOEMString(...)
+T2460 000:391.671 JLINK_GetFirmwareString(...)
+T2460 000:391.681 - 0.015ms
+T2460 000:408.576 JLINK_GetDLLVersion()
+T2460 000:408.610 - 0.039ms returns 75800
+T2460 000:408.625 JLINK_GetCompileDateTime()
+T2460 000:408.636 - 0.015ms
+T2460 000:413.401 JLINK_GetFirmwareString(...)
+T2460 000:413.430 - 0.034ms
+T2460 000:420.144 JLINK_GetHardwareVersion()
+T2460 000:420.168 - 0.030ms returns 70000
+T2460 000:424.967 JLINK_GetSN()
+T2460 000:424.988 - 0.026ms returns 20090928
+T2460 000:429.759 JLINK_GetOEMString(...)
+T2460 000:442.627 JLINK_TIF_Select(JLINKARM_TIF_SWD)
+T2460 000:443.466 - 0.855ms returns 0x00
+T2460 000:443.495 JLINK_HasError()
+T2460 000:443.517 JLINK_SetSpeed(5000)
+T2460 000:443.667 - 0.165ms
+T2460 000:443.701 JLINK_GetId()
+T2460 000:451.505   InitTarget() start
+T2460 000:451.543    J-Link Script File: Executing InitTarget()
+T2460 000:556.349   Can not attach to CPU. Trying connect under reset.
+T2460 000:631.060   Connecting to CPU via connect under reset failed.
+T2460 000:708.782   InitTarget() end
+T2460 000:792.244   InitTarget() start
+T2460 000:792.393    J-Link Script File: Executing InitTarget()
+T2460 000:851.347   InitTarget() end
+T2460 001:491.269 - 1047.666ms returns 0x00000000
+T2460 003:319.422 JLINK_Close()
+T2460 003:338.705 - 19.314ms
+T2460 003:338.743   
+T2460 003:338.754   Closed
+>>>>>>> fix-judge-gui

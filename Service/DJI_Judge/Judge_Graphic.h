@@ -84,59 +84,62 @@ typedef __packed struct
 
 typedef struct
 {
-		ListItem_t ListItem;
+		//ListItem_t ListItem;
+		uint8_t Is_In_Queue;
 		SemaphoreHandle_t Graphic_Obj_Mutex;
 		graphic_data_struct_t Graphic_Data;
 }Judge_Graphic_Obj_t;
 
 typedef struct
 {
-	ListEx_t Graphic_Obj_List;
-	uint32_t Judge_Obj_Counter;
-	QueueHandle_t Judge_Graphic_CommonObj_Send_Queue;
-//	SemaphoreHandle_t Graphic_List_Mutex;
+	QueueHandle_t Judge_Graphic_Character_Queue;
+	QueueHandle_t Judge_Graphic_CommObj_Queue;
+	uint8_t Current_Step;
+	uint32_t Judge_Graphic_Obj_Counter;
 }DJI_Judge_Graphic_t;
 
-uint8_t Judge_Graphic_Obj_Init(Judge_Graphic_Obj_t* Obj);
+typedef Judge_Graphic_Obj_t* Judge_Graphic_Obj_Handle;
+
+uint8_t Judge_Graphic_Obj_Init(Judge_Graphic_Obj_Handle Obj);
 
 void Judge_Graphic_Init(void);
 void Judge_Graphic_Handler(void);
-void Judge_Graphic_Obj_Set_Color(Judge_Graphic_Obj_t* Obj,Judge_Graphic_Color_t Color);
-uint32_t Judge_Graphic_Obj_Get_Width(Judge_Graphic_Obj_t* Obj);
-uint32_t Judge_Graphic_Obj_Get_Height(Judge_Graphic_Obj_t* Obj);
-void Judge_Graphic_Obj_Set_Width(Judge_Graphic_Obj_t* Obj,uint32_t W);
-void Judge_Graphic_Obj_Set_Height(Judge_Graphic_Obj_t* Obj,uint32_t H);
-void Judge_Graphic_Obj_Set_Size(Judge_Graphic_Obj_t* Obj,uint32_t W,uint32_t H);
-uint32_t Judge_Graphic_Obj_Get_X(Judge_Graphic_Obj_t* Obj);
-uint32_t Judge_Graphic_Obj_Get_Y(Judge_Graphic_Obj_t* Obj);
-void Judge_Graphic_Obj_Set_X(Judge_Graphic_Obj_t* Obj,uint32_t X);
-void Judge_Graphic_Obj_Set_Y(Judge_Graphic_Obj_t* Obj,uint32_t Y);
-void Judge_Graphic_Obj_Set_Pos(Judge_Graphic_Obj_t* Obj,uint32_t X,uint32_t Y);
-uint32_t Judge_Graphic_Obj_Get_Center_X(Judge_Graphic_Obj_t* Obj);
-uint32_t Judge_Graphic_Obj_Get_Center_Y(Judge_Graphic_Obj_t* Obj);
-void Judge_Graphic_Obj_Set_Center_X(Judge_Graphic_Obj_t* Obj,uint32_t Cx);
-void Judge_Graphic_Obj_Set_Center_Y(Judge_Graphic_Obj_t* Obj,uint32_t Cy);
-void Judge_Graphic_Obj_Set_Center_Pos(Judge_Graphic_Obj_t* Obj,uint32_t Cx,uint32_t Cy);
-void Judge_Graphic_Obj_Set_Start_Angle(Judge_Graphic_Obj_t* Obj,uint32_t Start_Angle);
-void Judge_Graphic_Obj_Set_End_Angle(Judge_Graphic_Obj_t* Obj,uint32_t End_Angle);
-uint32_t Judge_Graphic_Obj_Get_End_Angle(Judge_Graphic_Obj_t* Obj,uint32_t End_Angle);
-uint32_t Judge_Graphic_Obj_Get_Start_Angle(Judge_Graphic_Obj_t* Obj,uint32_t Start_Angle);
+void Judge_Graphic_Obj_Set_Color(Judge_Graphic_Obj_Handle Obj,Judge_Graphic_Color_t Color);
+uint32_t Judge_Graphic_Obj_Get_Width(Judge_Graphic_Obj_Handle Obj);
+uint32_t Judge_Graphic_Obj_Get_Height(Judge_Graphic_Obj_Handle Obj);
+void Judge_Graphic_Obj_Set_Width(Judge_Graphic_Obj_Handle Obj,uint32_t W);
+void Judge_Graphic_Obj_Set_Height(Judge_Graphic_Obj_Handle Obj,uint32_t H);
+void Judge_Graphic_Obj_Set_Size(Judge_Graphic_Obj_Handle Obj,uint32_t W,uint32_t H);
+uint32_t Judge_Graphic_Obj_Get_X(Judge_Graphic_Obj_Handle Obj);
+uint32_t Judge_Graphic_Obj_Get_Y(Judge_Graphic_Obj_Handle Obj);
+void Judge_Graphic_Obj_Set_X(Judge_Graphic_Obj_Handle Obj,uint32_t X);
+void Judge_Graphic_Obj_Set_Y(Judge_Graphic_Obj_Handle Obj,uint32_t Y);
+void Judge_Graphic_Obj_Set_Pos(Judge_Graphic_Obj_Handle Obj,uint32_t X,uint32_t Y);
+uint32_t Judge_Graphic_Obj_Get_Center_X(Judge_Graphic_Obj_Handle Obj);
+uint32_t Judge_Graphic_Obj_Get_Center_Y(Judge_Graphic_Obj_Handle Obj);
+void Judge_Graphic_Obj_Set_Center_X(Judge_Graphic_Obj_Handle Obj,uint32_t Cx);
+void Judge_Graphic_Obj_Set_Center_Y(Judge_Graphic_Obj_Handle Obj,uint32_t Cy);
+void Judge_Graphic_Obj_Set_Center_Pos(Judge_Graphic_Obj_Handle Obj,uint32_t Cx,uint32_t Cy);
+void Judge_Graphic_Obj_Set_Start_Angle(Judge_Graphic_Obj_Handle Obj,uint32_t Start_Angle);
+void Judge_Graphic_Obj_Set_End_Angle(Judge_Graphic_Obj_Handle Obj,uint32_t End_Angle);
+uint32_t Judge_Graphic_Obj_Get_End_Angle(Judge_Graphic_Obj_Handle Obj,uint32_t End_Angle);
+uint32_t Judge_Graphic_Obj_Get_Start_Angle(Judge_Graphic_Obj_Handle Obj,uint32_t Start_Angle);
 
 
-void Judge_Graphic_Obj_Set_Radius_A(Judge_Graphic_Obj_t* Obj,uint32_t Ra);
-void Judge_Graphic_Obj_Set_Radius_B(Judge_Graphic_Obj_t* Obj,uint32_t Rb);
-void Judge_Graphic_Obj_Set_Radius(Judge_Graphic_Obj_t* Obj,uint32_t R);
-void Judge_Graphic_Obj_Set_Line_Width(Judge_Graphic_Obj_t* Obj,uint32_t W);
-void Judge_Graphic_Obj_Set_Val(Judge_Graphic_Obj_t* Obj,int32_t Val);
-void Judge_Graphic_Obj_Del(Judge_Graphic_Obj_t* Obj);
-Judge_Graphic_Obj_t* Judge_Graphic_Ellipse_Create(uint32_t Cx,uint32_t Cy,uint32_t Ra,uint32_t Rb,uint32_t W);
-Judge_Graphic_Obj_t* Judge_Graphic_Circle_Create(uint32_t Cx,uint32_t Cy,uint32_t R,uint32_t W);
-Judge_Graphic_Obj_t* Judge_Graphic_Line_Create(uint32_t X1,uint32_t Y1,uint32_t X2,uint32_t Y2,uint32_t W);
-Judge_Graphic_Obj_t* Judge_Graphic_Rect_Create(uint32_t X1,uint32_t Y1,uint32_t X2,uint32_t Y2,uint32_t W);
-Judge_Graphic_Obj_t* Judge_Graphic_Arc_Create(uint32_t A1,uint32_t A2,uint32_t Cx, uint32_t Cy,uint32_t R,uint32_t W);
-Judge_Graphic_Obj_t* Judge_Graphic_Float_Create(uint32_t X,uint32_t Y,uint32_t Font_Size,float Val);
-Judge_Graphic_Obj_t* Judge_Graphic_Integer_Create(uint32_t X,uint32_t Y,uint32_t Font_Size,int32_t Val);
-Judge_Graphic_Obj_t* Judge_Graphic_Character_Create(uint32_t X,uint32_t Y,uint32_t Font_Size,char* Str);
+void Judge_Graphic_Obj_Set_Radius_A(Judge_Graphic_Obj_Handle Obj,uint32_t Ra);
+void Judge_Graphic_Obj_Set_Radius_B(Judge_Graphic_Obj_Handle Obj,uint32_t Rb);
+void Judge_Graphic_Obj_Set_Radius(Judge_Graphic_Obj_Handle Obj,uint32_t R);
+void Judge_Graphic_Obj_Set_Line_Width(Judge_Graphic_Obj_Handle Obj,uint32_t W);
+void Judge_Graphic_Obj_Set_Val(Judge_Graphic_Obj_Handle Obj,int32_t Val);
+void Judge_Graphic_Obj_Del(Judge_Graphic_Obj_Handle Obj);
+Judge_Graphic_Obj_Handle Judge_Graphic_Ellipse_Create(uint32_t Cx,uint32_t Cy,uint32_t Ra,uint32_t Rb,uint32_t W);
+Judge_Graphic_Obj_Handle Judge_Graphic_Circle_Create(uint32_t Cx,uint32_t Cy,uint32_t R,uint32_t W);
+Judge_Graphic_Obj_Handle Judge_Graphic_Line_Create(uint32_t X1,uint32_t Y1,uint32_t X2,uint32_t Y2,uint32_t W);
+Judge_Graphic_Obj_Handle Judge_Graphic_Rect_Create(uint32_t X1,uint32_t Y1,uint32_t X2,uint32_t Y2,uint32_t W);
+Judge_Graphic_Obj_Handle Judge_Graphic_Arc_Create(uint32_t A1,uint32_t A2,uint32_t Cx, uint32_t Cy,uint32_t R,uint32_t W);
+Judge_Graphic_Obj_Handle Judge_Graphic_Float_Create(uint32_t X,uint32_t Y,uint32_t Font_Size,float Val);
+Judge_Graphic_Obj_Handle Judge_Graphic_Integer_Create(uint32_t X,uint32_t Y,uint32_t Font_Size,int32_t Val);
+Judge_Graphic_Obj_Handle Judge_Graphic_Character_Create(uint32_t X,uint32_t Y,uint32_t Font_Size,char* Str);
 
 
 #endif

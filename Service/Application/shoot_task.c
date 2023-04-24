@@ -48,11 +48,12 @@ void Shoot_Mode_Set(Shoot_t* Mode_Set)
 																			||((Shoot_Mode_Key&SHOOT_START_STOP_KEY)&&!(Mode_Set->Last_Shoot_Mode_Key&SHOOT_START_STOP_KEY));
 	
 	
-		if((Shoot_Mode_Key&BULLET_BASKET_KEY)&&!(Mode_Set->Last_Shoot_Mode_Key&BULLET_BASKET_KEY))
+		if((Shoot_Mode_Key&BULLET_BASKET_OPEN_KEY)&&!(Mode_Set->Last_Shoot_Mode_Key&BULLET_BASKET_OPEN_KEY))
 		{
-				if(Mode_Set->Bullet_Basket_Mode==BASKET_CLOSE)
 					Mode_Set->Bullet_Basket_Mode = BASKET_OPEN;
-				else if(Mode_Set->Bullet_Basket_Mode==BASKET_OPEN)
+		}
+		else if((Shoot_Mode_Key&BULLET_BASKET_CLOSE_KEY)&&!(Mode_Set->Last_Shoot_Mode_Key&BULLET_BASKET_CLOSE_KEY))
+		{
 					Mode_Set->Bullet_Basket_Mode = BASKET_CLOSE;
 		}
 	
@@ -261,11 +262,13 @@ void Shoot_Init(Shoot_t* Data_Init)
 		Judge_Graphic_Obj_Set_Color(Data_Init->Shoot_Line_1m,COLOR_ORANGE);
 		Data_Init->Shoot_Line_3m = Judge_Graphic_Line_Create(0,540-50,1920,540-50,2);
 		Judge_Graphic_Obj_Set_Color(Data_Init->Shoot_Line_3m,COLOR_YELLOW);
-		Data_Init->Shoot_Line_3m = Judge_Graphic_Line_Create(960-10,0,960-10,1080,2);
+		Data_Init->Shoot_Line_ver = Judge_Graphic_Line_Create(960-10,0,960-10,1080,2);
 		Judge_Graphic_Obj_Set_Color(Data_Init->Shoot_Line_ver,COLOR_GREEN);
-		//Data_Init->Shoot_Line_5m = Judge_Graphic_Line_Create(0,540-50,1920,540-50,2);
-		//Data_Init->Bullet_Basket_Graphic = Judge_Graphic_Circle_Create(1800,600,5,5);
-		//Data_Init->Shoot_Stall_Graphic = Judge_Graphic_Circle_Create(1800,650,5,5);
+		
+		Data_Init->Bullet_Basket_Graphic = Judge_Graphic_Circle_Create(1640,600,10,5);
+		Judge_Graphic_Character_Create(1665,610,20,"BULLET BASKET");
+		Data_Init->Shoot_Stall_Graphic = Judge_Graphic_Circle_Create(1640,650,10,5);
+		Judge_Graphic_Character_Create(1665,660,20,"SHOOT STALL");
 }
 
 uint8_t Get_Shoot_Freq_From_Judge_System(Shoot_t* Get_Shoot_Freq)
@@ -446,7 +449,7 @@ void Shoot_Task(void *pvParameters)
 		Shoot_Control_Data_Set(&Shoot);
 		
 		Shoot_Pid_Calc(&Shoot);
-		//Shoot_Draw_Graphic(&Shoot);
+		Shoot_Draw_Graphic(&Shoot);
 		CAN1_Motor_Control(SHOOT_MOTOR_ALL_ID,(int16_t)Shoot.Fric_Motor_Current_Send[0],
 																					(int16_t)Shoot.Fric_Motor_Current_Send[1],
 																					(int16_t)Shoot.Trigger_Motor_Current_Send,0);
