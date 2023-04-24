@@ -96,9 +96,8 @@ void Chassis_Init(Chassis_t* Chassis_Data_Init)
 	//底盘发送数据清零
 	Chassis_Data_Set_In_Four((uint16_t*)Chassis_Data_Init->Chassis_Motor_Curent_Send,0);
 	
-	//Chassis_Data_Init->Spin_Graphic = Judge_Graphic_Circle_Create(1800,700,5,5);
-
-
+	Chassis_Data_Init->Spin_Left_Graphic = Judge_Graphic_Character_Create(960-20,200,20,"L");
+	Chassis_Data_Init->Spin_Right_Graphic = Judge_Graphic_Character_Create(960+20,200,20,"R");
 }
 
 /*****电机数据更新函数*****/
@@ -371,11 +370,11 @@ void Chassis_Mode_Spin(Chassis_t* Chassis_Spin_Set)
 					
 					if(Chassis_Spin_Set->Chassis_Mode == Chassis_Spin_Right)
 					{
-						Chassis_VR = Chassis_Shift_Max_Speed;
+						Chassis_VR = -Chassis_Shift_Max_Speed;
 					}
 					else if(Chassis_Spin_Set->Chassis_Mode == Chassis_Spin_Left)
 					{
-						Chassis_VR = -Chassis_Shift_Max_Speed;
+						Chassis_VR = Chassis_Shift_Max_Speed;
 					}
 					
 		
@@ -404,11 +403,11 @@ void Chassis_Mode_Spin(Chassis_t* Chassis_Spin_Set)
 					
 					if(Chassis_Spin_Set->Chassis_Mode == Chassis_Spin_Right)
 					{
-						Chassis_VR = Chassis_Max_Speed;
+						Chassis_VR = -Chassis_Max_Speed;
 					}
 					else if(Chassis_Spin_Set->Chassis_Mode == Chassis_Spin_Left)
 					{
-						Chassis_VR = -Chassis_Max_Speed;
+						Chassis_VR = Chassis_Max_Speed;
 					}
 							
 			}
@@ -738,10 +737,15 @@ void Chassis_Power_Limit(Chassis_t* Power_Limit)
 
 void Chassis_Draw_Graphic(Chassis_t* Draw_Graphic)
 {
-	if(Draw_Graphic->Chassis_Mode == Chassis_Spin || Draw_Graphic->Chassis_Mode == Chassis_Spin_Left || Draw_Graphic->Chassis_Mode == Chassis_Spin_Right)
-			Judge_Graphic_Obj_Set_Color(Draw_Graphic->Spin_Graphic,COLOR_GREEN);
+	if(Draw_Graphic->Chassis_Mode == Chassis_Spin_Left)
+			Judge_Graphic_Obj_Set_Color(Draw_Graphic->Spin_Left_Graphic,COLOR_ORANGE);
 	else
-			Judge_Graphic_Obj_Set_Color(Draw_Graphic->Spin_Graphic,COLOR_ORANGE);
+			Judge_Graphic_Obj_Set_Color(Draw_Graphic->Spin_Left_Graphic,COLOR_GREEN);
+		
+	if(Draw_Graphic->Chassis_Mode == Chassis_Spin_Right)
+			Judge_Graphic_Obj_Set_Color(Draw_Graphic->Spin_Right_Graphic,COLOR_ORANGE);
+	else
+			Judge_Graphic_Obj_Set_Color(Draw_Graphic->Spin_Right_Graphic,COLOR_GREEN);
 }
 
 void Chassis_Task(void *pvParameters)
@@ -766,7 +770,7 @@ void Chassis_Task(void *pvParameters)
 		
 		Chassis_Power_Limit(&Chassis);
 		
-		//Chassis_Draw_Graphic(&Chassis);
+		Chassis_Draw_Graphic(&Chassis);
 		
 		CAN2_Motor_Control(0x200,(int16_t)Chassis.Chassis_Motor_Curent_Send[0],(int16_t)Chassis.Chassis_Motor_Curent_Send[1],(int16_t)Chassis.Chassis_Motor_Curent_Send[2],(int16_t)Chassis.Chassis_Motor_Curent_Send[3]);
 

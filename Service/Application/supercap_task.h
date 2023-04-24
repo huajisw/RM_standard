@@ -14,7 +14,7 @@
 #define DEFAULT_CHASSIS_POWER_LIMIT 60
 #define DEFAULT_CHASSIS_POWER_BUFFER 60
 #define CAP_OFFLINE_TIME_LIMIT  500
-#define CAP_MAX_VOLT  30.0f
+#define CAP_MAX_VOLT  23.0f
 #define CAP_MIN_VOLT  3.0f
 
 typedef enum
@@ -78,7 +78,7 @@ typedef struct
 		uint8_t debug_mode; 
 		uint16_t chassis_power_limit;
 		uint16_t chassis_power_buffer;
-		Judge_Graphic_Obj_t* supercap_graphic;
+		Judge_Graphic_Obj_Handle supercap_graphic;
 }supercap_t;
 
 uint8_t is_supercap_alive();

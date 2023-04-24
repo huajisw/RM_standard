@@ -37,8 +37,8 @@
 #define CHASSIS_S_KEY KEY_PRESSED_OFFSET_S
 #define CHASSIS_D_KEY KEY_PRESSED_OFFSET_D
 
-#define CHASSIS_TURN_LEFT_KEY KEY_PRESSED_OFFSET_E
-#define CHASSIS_TURN_RIGHT_KEY KEY_PRESSED_OFFSET_Q
+#define CHASSIS_TURN_LEFT_KEY KEY_PRESSED_OFFSET_Q
+#define CHASSIS_TURN_RIGHT_KEY KEY_PRESSED_OFFSET_E
 #define CHASSIS_TURN_Variable_Speed_Spin_KEY KEY_PRESSED_OFFSET_G
 
 #define BUFFER_TOTAL_CURRENT_LIMIT_FACTOR 320
@@ -105,7 +105,8 @@ typedef struct
 	uint16_t Chassis_Power_Buffer;		//底盘热量数据
 	uint16_t Chassis_Max_Power;	//当前底盘最大功率
 	
-	Judge_Graphic_Obj_t* Spin_Graphic;
+	Judge_Graphic_Obj_Handle Spin_Left_Graphic;
+	Judge_Graphic_Obj_Handle Spin_Right_Graphic;
 }Chassis_t;
 
 void Chassis_Task(void *pvParameters);
