@@ -132,14 +132,15 @@ void Judge_Graphic_Obj_Set_Radius(Judge_Graphic_Obj_Handle Obj,uint32_t R);
 void Judge_Graphic_Obj_Set_Line_Width(Judge_Graphic_Obj_Handle Obj,uint32_t W);
 void Judge_Graphic_Obj_Set_Val(Judge_Graphic_Obj_Handle Obj,int32_t Val);
 void Judge_Graphic_Obj_Del(Judge_Graphic_Obj_Handle Obj);
-Judge_Graphic_Obj_Handle Judge_Graphic_Ellipse_Create(uint32_t Cx,uint32_t Cy,uint32_t Ra,uint32_t Rb,uint32_t W);
-Judge_Graphic_Obj_Handle Judge_Graphic_Circle_Create(uint32_t Cx,uint32_t Cy,uint32_t R,uint32_t W);
-Judge_Graphic_Obj_Handle Judge_Graphic_Line_Create(uint32_t X1,uint32_t Y1,uint32_t X2,uint32_t Y2,uint32_t W);
-Judge_Graphic_Obj_Handle Judge_Graphic_Rect_Create(uint32_t X1,uint32_t Y1,uint32_t X2,uint32_t Y2,uint32_t W);
-Judge_Graphic_Obj_Handle Judge_Graphic_Arc_Create(uint32_t A1,uint32_t A2,uint32_t Cx, uint32_t Cy,uint32_t R,uint32_t W);
-Judge_Graphic_Obj_Handle Judge_Graphic_Float_Create(uint32_t X,uint32_t Y,uint32_t Font_Size,float Val);
-Judge_Graphic_Obj_Handle Judge_Graphic_Integer_Create(uint32_t X,uint32_t Y,uint32_t Font_Size,int32_t Val);
-Judge_Graphic_Obj_Handle Judge_Graphic_Character_Create(uint32_t X,uint32_t Y,uint32_t Font_Size,char* Str);
+
+Judge_Graphic_Obj_Handle Judge_Graphic_Ellipse_Create(uint32_t Cx,uint32_t Cy,uint32_t Ra,uint32_t Rb,uint32_t W,Judge_Graphic_Color_t Color);
+Judge_Graphic_Obj_Handle Judge_Graphic_Circle_Create(uint32_t Cx,uint32_t Cy,uint32_t R,uint32_t W,Judge_Graphic_Color_t Color);
+Judge_Graphic_Obj_Handle Judge_Graphic_Line_Create(uint32_t X1,uint32_t Y1,uint32_t X2,uint32_t Y2,uint32_t W,Judge_Graphic_Color_t Color);
+Judge_Graphic_Obj_Handle Judge_Graphic_Rect_Create(uint32_t X1,uint32_t Y1,uint32_t X2,uint32_t Y2,uint32_t W,Judge_Graphic_Color_t Color);
+Judge_Graphic_Obj_Handle Judge_Graphic_Arc_Create(uint32_t A1,uint32_t A2,uint32_t Cx, uint32_t Cy,uint32_t R,uint32_t W,Judge_Graphic_Color_t Color);
+Judge_Graphic_Obj_Handle Judge_Graphic_Float_Create(uint32_t X,uint32_t Y,uint32_t Font_Size,float Val,Judge_Graphic_Color_t Color);
+Judge_Graphic_Obj_Handle Judge_Graphic_Integer_Create(uint32_t X,uint32_t Y,uint32_t Font_Size,int32_t Val,Judge_Graphic_Color_t Color);
+Judge_Graphic_Obj_Handle Judge_Graphic_Character_Create(uint32_t X,uint32_t Y,uint32_t Font_Size,char* Str,Judge_Graphic_Color_t Color);
 
 
 #endif

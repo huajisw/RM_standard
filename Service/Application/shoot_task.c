@@ -93,13 +93,13 @@ void Shoot_Mode_Set(Shoot_t* Mode_Set)
 						uint8_t Shoot_Bullet_No_Break_Signal = Mode_Set->Shoot_Mode_Switch_Down_Time==SHOOT_MODE_SWITCH_DOWN_TIME_LIMIT;
 						//点击鼠标左键，或者下拨一次，产生单发信号
 						uint8_t Shoot_Bullet_Once_Signal = (Shoot_Mode_Switch==RC_SW_DOWN&&Mode_Set->Last_Shoot_Mode_Switch!=RC_SW_DOWN)
-																				||(Shoot_Mouse_Key&&!Mode_Set->Last_Shoot_Mouse_Key);
+																				||(!Shoot_Mouse_Key&&Mode_Set->Last_Shoot_Mouse_Key);
 						//每次检测到单发信号，需要发射的弹丸数目加一
-						if(Shoot_Bullet_Once_Signal)
-							Mode_Set->Need_Shoot_Count++;
-						//每次检测到连发信号，需要发射的弹丸数目置一
-						if(Shoot_Bullet_No_Break_Signal)
-							Mode_Set->Need_Shoot_Count=1;
+//						if(Shoot_Bullet_Once_Signal)
+//							Mode_Set->Need_Shoot_Count++;
+//						//每次检测到连发信号，需要发射的弹丸数目置一
+//						if(Shoot_Bullet_No_Break_Signal)
+//							Mode_Set->Need_Shoot_Count=1;
 						
 						//电机堵转信号
 						uint8_t Trigger_Motor_Stall_Signal = 0;
@@ -129,13 +129,10 @@ void Shoot_Mode_Set(Shoot_t* Mode_Set)
 										//如果电机堵转了，说明卡弹了，进入回拨状态
 										if(Trigger_Motor_Stall_Signal)
 												Mode_Set->Shoot_Mode = SHOOT_STALL;
-										//否则表明没有弹丸了
-//										else
-//												Mode_Set->No_Bullet_Flag = 1;
 								}
 						}
 						//在准备射击状态下，如果需要发射的弹丸数目大于0，进入发射状态
-						else if(Mode_Set->Shoot_Mode == SHOOT_READY&&Mode_Set->Need_Shoot_Count)
+						else if(Mode_Set->Shoot_Mode == SHOOT_READY&&(Shoot_Bullet_Once_Signal||Shoot_Bullet_No_Break_Signal))
 						{
 								Mode_Set->Shoot_Mode = SHOOT_BULLET;
 						}
@@ -147,21 +144,25 @@ void Shoot_Mode_Set(Shoot_t* Mode_Set)
 						}
 						else if(Mode_Set->Shoot_Mode == SHOOT_BULLET)
 						{
-							//在发射弹丸状态，如果弹丸射出，进入开始发射状态，需要发射的弹丸数目减一
-							if(Mode_Set->Shoot_Key!=Mode_Set->Shoot_Key_On_Level&&!Shoot_Bullet_No_Break_Signal)//&&Mode_Set->Last_Shoot_Key==SHOOT_KEY_ON)
+							//在发射弹丸状态，如果弹丸射出
+							if(Mode_Set->Shoot_Key!=Mode_Set->Shoot_Key_On_Level&&Mode_Set->Last_Shoot_Key==SHOOT_KEY_ON)
 							{
-									Mode_Set->Shoot_Mode=SHOOT_START;
-									Mode_Set->Need_Shoot_Count--;
+									//且没有连发信号，进入开始发射状态，否则清零计数器
+									if(!Shoot_Bullet_No_Break_Signal)
+											Mode_Set->Shoot_Mode=SHOOT_START;
+									else
+											Mode_Set->Shoot_Bullet_Time=0;
 							}
+							
 							//在发射弹丸状态下，如果长时间未发弹，检查电机是否卡住了
 							if(Mode_Set->Shoot_Bullet_Time>Mode_Set->Shoot_Bullet_Time_Limit)
 							{
 									//如果电机卡住了，进入回拨模式
 									if(Trigger_Motor_Stall_Signal)
 											Mode_Set->Shoot_Mode=SHOOT_STALL;
-									//否则表明没有弹丸了
-//									else
-//											Mode_Set->No_Bullet_Flag = 1;
+									//电机没卡住，说明没弹丸了
+									else
+											Mode_Set->Shoot_Mode=SHOOT_START;
 							}
 						}
 				}
@@ -258,17 +259,18 @@ void Shoot_Init(Shoot_t* Data_Init)
 		Data_Init->Shoot_Key_On_Level = SHOOT_KEY_ON;
 		Data_Init->Fric_Reverse_Flag = 1;
 		
-		Data_Init->Shoot_Line_1m = Judge_Graphic_Line_Create(0,540-80,1920,540-80,2);
-		Judge_Graphic_Obj_Set_Color(Data_Init->Shoot_Line_1m,COLOR_ORANGE);
-		Data_Init->Shoot_Line_3m = Judge_Graphic_Line_Create(0,540-50,1920,540-50,2);
-		Judge_Graphic_Obj_Set_Color(Data_Init->Shoot_Line_3m,COLOR_YELLOW);
-		Data_Init->Shoot_Line_ver = Judge_Graphic_Line_Create(960-10,0,960-10,1080,2);
-		Judge_Graphic_Obj_Set_Color(Data_Init->Shoot_Line_ver,COLOR_GREEN);
+		Judge_Graphic_Line_Create(950-60,540-80,950+60,540-80,2,COLOR_YELLOW);
+		Judge_Graphic_Line_Create(950-20,540-50,950+20,540-50,2,COLOR_YELLOW);
 		
-		Data_Init->Bullet_Basket_Graphic = Judge_Graphic_Circle_Create(1640,600,10,5);
-		Judge_Graphic_Character_Create(1665,610,20,"BULLET BASKET");
-		Data_Init->Shoot_Stall_Graphic = Judge_Graphic_Circle_Create(1640,650,10,5);
-		Judge_Graphic_Character_Create(1665,660,20,"SHOOT STALL");
+		Judge_Graphic_Line_Create(950-60,540-80,950-20,540-50,2,COLOR_YELLOW);
+		Judge_Graphic_Line_Create(950+60,540-80,950+20,540-50,2,COLOR_YELLOW);
+		
+		Judge_Graphic_Line_Create(960-10,540-80,960-10,540-50,2,COLOR_YELLOW);
+		
+		Data_Init->Bullet_Basket_Graphic = Judge_Graphic_Character_Create(1665,600,20,"BULLET BASKET",COLOR_GREEN);
+		Data_Init->Shoot_Stall_Graphic = Judge_Graphic_Character_Create(1665,650,20,"SHOOT STALL",COLOR_GREEN);
+		Data_Init->No_Bullet_Graphic = Judge_Graphic_Character_Create(1665,700,20,"No Bullet",COLOR_GREEN);
+		Data_Init->Fric_Start_Graphic = Judge_Graphic_Character_Create(1665,750,20,"Fric Start",COLOR_GREEN);
 }
 
 uint8_t Get_Shoot_Freq_From_Judge_System(Shoot_t* Get_Shoot_Freq)
@@ -339,7 +341,7 @@ void Shoot_Control_Data_Set(Shoot_t* Control_Data_Set)
 		{
 				Control_Data_Set->Trigger_Motor_Speed_Set = Control_Data_Set->Load_Bullet_Speed;
 		}
-		else if(Control_Data_Set->Shoot_Mode == SHOOT_READY)
+		if(Control_Data_Set->Shoot_Mode == SHOOT_READY)
 		{
 				Control_Data_Set->Trigger_Motor_Speed_Set = 0;
 		}
@@ -431,6 +433,25 @@ void Shoot_Draw_Graphic(Shoot_t* Draw_Graphic)
 		{
 				Judge_Graphic_Obj_Set_Color(Draw_Graphic->Shoot_Stall_Graphic,COLOR_GREEN);
 		}
+		
+		if(Draw_Graphic->Shoot_Mode==SHOOT_START)
+		{
+				Judge_Graphic_Obj_Set_Color(Draw_Graphic->No_Bullet_Graphic,COLOR_ORANGE);
+		}
+		else
+		{
+				Judge_Graphic_Obj_Set_Color(Draw_Graphic->No_Bullet_Graphic,COLOR_GREEN);
+		}
+		
+		if((Draw_Graphic->Fric_Motor_Speed_Get[0]!=0)&&(Draw_Graphic->Fric_Motor_Speed_Get[1]!=0))
+		{
+				Judge_Graphic_Obj_Set_Color(Draw_Graphic->Fric_Start_Graphic,COLOR_GREEN);
+		}
+		else
+		{
+				Judge_Graphic_Obj_Set_Color(Draw_Graphic->Fric_Start_Graphic,COLOR_ORANGE);
+		}
+		
 }
 
 void Shoot_Task(void *pvParameters)

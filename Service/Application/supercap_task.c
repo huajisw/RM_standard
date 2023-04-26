@@ -132,8 +132,8 @@ void supercap_init(supercap_t* init)
 		init->chassis_power_buffer = DEFAULT_CHASSIS_POWER_BUFFER;
 		init->chassis_power_limit = DEFAULT_CHASSIS_POWER_LIMIT;
 	
-		init->supercap_graphic = Judge_Graphic_Arc_Create(0,1,1640,700,10,5);
-		Judge_Graphic_Character_Create(1665,710,20,"SUPERCAP");
+		init->supercap_graphic = Judge_Graphic_Arc_Create(0,1,1640,800,10,5,COLOR_GREEN);
+		//Judge_Graphic_Character_Create(1665,710,20,"SUPERCAP",COLOR_GREEN);
 }
 
 void supercap_graphic_draw(supercap_t* graphic_draw)

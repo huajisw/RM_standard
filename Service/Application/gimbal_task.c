@@ -669,13 +669,11 @@ void Gimbal_Motor_Control_Data_Check(Gimbal_t* Gimbal_Data_Check)
 //BUG[5.2]无法180°转头，角度有问题
 float Mouse_X_Set = 30000.0f,Mouse_Y_Set = 40000.0f;
 
-float Gimbal_Yaw_Now_Angle,Gimbal_Yaw_Target_Angle;
+float Gimbal_Yaw_Target_Angle;
 
-float Gimbal_Pitch_Now_Angle,Gimbal_Pitch_Target_Angle;
-
-int Gimbal_Turn_Head_Flag,Gimbal_Turn_Head_Flag_Last,Gimbal_Key_Board_Last;
-float Gimbal_Turn_Head_Angle_Add,Gimbal_Turn_Head_Angle_Limit;
-float Jscope_IMU_now_yaw_angle,Jscope_IMU_set_yaw_angle;
+float Gimbal_Pitch_Now_Angle;
+uint8_t Gimbal_Turn_Head_Flag;
+uint16_t Gimbal_Key_Board_Last;
 
 //云台陀螺仪控制，无限制模式
 void Gimbal_IMU_Control_NL_Set(Gimbal_t* Gimbal_Control_Set)
@@ -683,49 +681,29 @@ void Gimbal_IMU_Control_NL_Set(Gimbal_t* Gimbal_Control_Set)
 	
 	Gimbal_Control_Set->Gimbal_Yaw_Add_Data = - (float)((Gimbal_Control_Set->Gimbal_RC_Ctl_Data->rc.ch2)/6600.000) / 180.00f * 3.1415926f - (float)((Gimbal_Control_Set->Gimbal_RC_Ctl_Data->mouse.x) / Mouse_X_Set);
 	Gimbal_Control_Set->Gimbal_Pitch_Add_Data = -(float)((Gimbal_Control_Set->Gimbal_RC_Ctl_Data->rc.ch3)/13200.000) / 180.00f * 3.1415926f + (float)((Gimbal_Control_Set->Gimbal_RC_Ctl_Data->mouse.y) / Mouse_Y_Set);
-
-	Gimbal_Yaw_Now_Angle = Gimbal_Control_Set->Gimbal_Yaw_Msg_t.Gimbal_Motor_Angle_Msg;	
 	
 	if((Gimbal_Turn_Head_Flag == 0) && (!(Gimbal_Key_Board_Last  & Gimbal_Turn_Head_Key) && (Gimbal_Control_Set->Gimbal_RC_Ctl_Data->key.v & Gimbal_Turn_Head_Key)))
 	{
-		Gimbal_Yaw_Target_Angle = Angle_Limit(Gimbal_Yaw_Now_Angle + PI);
+		Gimbal_Yaw_Target_Angle = Angle_Limit(Gimbal_Control_Set->Gimbal_Yaw_Msg_t.Gimbal_IMU_Angle_Msg + PI);
 		Gimbal_Turn_Head_Flag = 1;
 	}
-	else if((Gimbal_Turn_Head_Flag == 1) && (!(Gimbal_Key_Board_Last  & Gimbal_Turn_Head_Key) && (Gimbal_Control_Set->Gimbal_RC_Ctl_Data->key.v & Gimbal_Turn_Head_Key)))
+	else if(Gimbal_Turn_Head_Flag == 1 && ((!(Gimbal_Key_Board_Last  & Gimbal_Turn_Head_Key) && (Gimbal_Control_Set->Gimbal_RC_Ctl_Data->key.v & Gimbal_Turn_Head_Key))||Angle_Abs(Angle_Limit(Gimbal_Yaw_Target_Angle - Gimbal_Control_Set->Gimbal_Yaw_Msg_t.Gimbal_IMU_Angle_Msg)) < 0.1f))
 	{		
 		Gimbal_Turn_Head_Flag = 0;
+		Gimbal_Control_Set->Gimbal_Yaw_Add_Data += Angle_Limit(Gimbal_Yaw_Target_Angle - Gimbal_Control_Set->Gimbal_Yaw_Msg_t.Gimbal_IMU_Angle_Msg);
 	}
-	
-	if(Angle_Abs(Angle_Limit(Gimbal_Yaw_Target_Angle - Gimbal_Yaw_Now_Angle)) < 0.1f)
-	{
-		Gimbal_Turn_Head_Flag = 0;
-	}
-		
-
 	
 	if(Gimbal_Turn_Head_Flag == 1)
 	{
-
-		if(Angle_Limit(Gimbal_Yaw_Target_Angle - Gimbal_Yaw_Now_Angle) > 0.00f)
-		{
-			Gimbal_Turn_Head_Angle_Add = Gimbal_Turn_Head_Speed;
-		}			
-		else
-		{
-			Gimbal_Turn_Head_Angle_Add = -Gimbal_Turn_Head_Speed;
-		}
-
+		Gimbal_Control_Set->Gimbal_Yaw_Add_Data += Gimbal_Turn_Head_Speed;
 	}
 	else if(Gimbal_Turn_Head_Flag == 0)
 	{
-		Gimbal_Turn_Head_Angle_Add = 0;
+		
 	}
 	
-	
-	Gimbal_Turn_Head_Flag_Last = Gimbal_Turn_Head_Flag;
 	Gimbal_Key_Board_Last = Gimbal_Control_Set->Gimbal_RC_Ctl_Data->key.v;
 	
-	Gimbal_Control_Set->Gimbal_Yaw_Add_Data += Gimbal_Turn_Head_Angle_Add;
 	
 	Gimbal_Control_Set->Gimbal_Yaw_Control_Data += Gimbal_Control_Set->Gimbal_Yaw_Add_Data;
 	Gimbal_Control_Set->Gimbal_Pitch_Control_Data += Gimbal_Control_Set->Gimbal_Pitch_Add_Data;

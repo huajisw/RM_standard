@@ -618,7 +618,7 @@ void Judge_Graphic_Obj_Del(Judge_Graphic_Obj_Handle Obj)
 }
 /********图形创建函数**********/
 
-Judge_Graphic_Obj_Handle Judge_Graphic_Ellipse_Create(uint32_t Cx,uint32_t Cy,uint32_t Ra,uint32_t Rb,uint32_t W)
+Judge_Graphic_Obj_Handle Judge_Graphic_Ellipse_Create(uint32_t Cx,uint32_t Cy,uint32_t Ra,uint32_t Rb,uint32_t W,Judge_Graphic_Color_t Color)
 {
 		Judge_Graphic_Obj_Handle Ellipse = pvPortMalloc(sizeof(Judge_Graphic_Obj_t));
 		if(!Ellipse)
@@ -636,13 +636,14 @@ Judge_Graphic_Obj_Handle Judge_Graphic_Ellipse_Create(uint32_t Cx,uint32_t Cy,ui
 		Ellipse->Graphic_Data.graphic_union.graphic_data.end_x = (uint32_t)Cx + Ra/2;
 		Ellipse->Graphic_Data.graphic_union.graphic_data.end_y = (uint32_t)Cy + Rb/2;	
 		Ellipse->Graphic_Data.width = W;
+		Ellipse->Graphic_Data.color = Color;
 	
 		Judge_Graphic_Obj_Apply_Opt(Ellipse,OPT_ADD);
 		Judge_Graphic_Obj_Unlock(Ellipse);
 		return  Ellipse;
 }
 
-Judge_Graphic_Obj_Handle Judge_Graphic_Circle_Create(uint32_t Cx,uint32_t Cy,uint32_t R,uint32_t W)
+Judge_Graphic_Obj_Handle Judge_Graphic_Circle_Create(uint32_t Cx,uint32_t Cy,uint32_t R,uint32_t W,Judge_Graphic_Color_t Color)
 {
 		Judge_Graphic_Obj_Handle Circle = pvPortMalloc(sizeof(Judge_Graphic_Obj_t));
 		if(!Circle)
@@ -659,13 +660,14 @@ Judge_Graphic_Obj_Handle Judge_Graphic_Circle_Create(uint32_t Cx,uint32_t Cy,uin
 		Circle->Graphic_Data.start_y = Cy;
 		Circle->Graphic_Data.graphic_union.graphic_data.radius = R;
 		Circle->Graphic_Data.width = W;
+		Circle->Graphic_Data.color = Color;
 	
 		Judge_Graphic_Obj_Apply_Opt(Circle,OPT_ADD);
 		Judge_Graphic_Obj_Unlock(Circle);
 		return Circle;
 }
 
-Judge_Graphic_Obj_Handle Judge_Graphic_Line_Create(uint32_t X1,uint32_t Y1,uint32_t X2,uint32_t Y2,uint32_t W)
+Judge_Graphic_Obj_Handle Judge_Graphic_Line_Create(uint32_t X1,uint32_t Y1,uint32_t X2,uint32_t Y2,uint32_t W,Judge_Graphic_Color_t Color)
 {
 		Judge_Graphic_Obj_Handle Line = pvPortMalloc(sizeof(Judge_Graphic_Obj_t));
 		if(!Line)
@@ -683,13 +685,14 @@ Judge_Graphic_Obj_Handle Judge_Graphic_Line_Create(uint32_t X1,uint32_t Y1,uint3
 		Line->Graphic_Data.graphic_union.graphic_data.end_x = X2;
 		Line->Graphic_Data.graphic_union.graphic_data.end_y = Y2;	
 		Line->Graphic_Data.width = W;
+		Line->Graphic_Data.color = Color;
 	
 		Judge_Graphic_Obj_Apply_Opt(Line,OPT_ADD);
 		Judge_Graphic_Obj_Unlock(Line);
 		return Line;
 }
 
-Judge_Graphic_Obj_Handle Judge_Graphic_Rect_Create(uint32_t X1,uint32_t Y1,uint32_t X2,uint32_t Y2,uint32_t W)
+Judge_Graphic_Obj_Handle Judge_Graphic_Rect_Create(uint32_t X1,uint32_t Y1,uint32_t X2,uint32_t Y2,uint32_t W,Judge_Graphic_Color_t Color)
 {
 		Judge_Graphic_Obj_Handle Rect = pvPortMalloc(sizeof(Judge_Graphic_Obj_t));
 		if(!Rect)
@@ -707,13 +710,14 @@ Judge_Graphic_Obj_Handle Judge_Graphic_Rect_Create(uint32_t X1,uint32_t Y1,uint3
 		Rect->Graphic_Data.graphic_union.graphic_data.end_x = X2;
 		Rect->Graphic_Data.graphic_union.graphic_data.end_y = Y2;	
 		Rect->Graphic_Data.width = W;
+		Rect->Graphic_Data.color = Color;
 	
 		Judge_Graphic_Obj_Apply_Opt(Rect,OPT_ADD);
 		Judge_Graphic_Obj_Unlock(Rect);
 		return Rect;
 }
 
-Judge_Graphic_Obj_Handle Judge_Graphic_Arc_Create(uint32_t A1,uint32_t A2,uint32_t Cx, uint32_t Cy,uint32_t R,uint32_t W)
+Judge_Graphic_Obj_Handle Judge_Graphic_Arc_Create(uint32_t A1,uint32_t A2,uint32_t Cx, uint32_t Cy,uint32_t R,uint32_t W,Judge_Graphic_Color_t Color)
 {
 		Judge_Graphic_Obj_Handle Arc = pvPortMalloc(sizeof(Judge_Graphic_Obj_t));
 		if(!Arc)
@@ -733,13 +737,14 @@ Judge_Graphic_Obj_Handle Judge_Graphic_Arc_Create(uint32_t A1,uint32_t A2,uint32
 		Arc->Graphic_Data.graphic_union.graphic_data.end_x = R;
 		Arc->Graphic_Data.graphic_union.graphic_data.end_y = R;
 		Arc->Graphic_Data.width = W;
+		Arc->Graphic_Data.color = Color;
 	
 		Judge_Graphic_Obj_Apply_Opt(Arc,OPT_ADD);
 		Judge_Graphic_Obj_Unlock(Arc);
 		return Arc;
 }
 
-Judge_Graphic_Obj_Handle Judge_Graphic_Float_Create(uint32_t X,uint32_t Y,uint32_t Font_Size,float Val)
+Judge_Graphic_Obj_Handle Judge_Graphic_Float_Create(uint32_t X,uint32_t Y,uint32_t Font_Size,float Val,Judge_Graphic_Color_t Color)
 {
 		Judge_Graphic_Obj_Handle Float = pvPortMalloc(sizeof(Judge_Graphic_Obj_t));
 		if(!Float)
@@ -755,6 +760,7 @@ Judge_Graphic_Obj_Handle Judge_Graphic_Float_Create(uint32_t X,uint32_t Y,uint32
 		Float->Graphic_Data.start_x = X;
 		Float->Graphic_Data.start_y = Y;
 		Float->Graphic_Data.end_angle = 3;
+		Float->Graphic_Data.color = Color;
 		Float->Graphic_Data.start_angle = Font_Size<10?10:Font_Size;
 		Float->Graphic_Data.width = Font_Size/10<4?4:Font_Size/10;
 	
@@ -763,7 +769,7 @@ Judge_Graphic_Obj_Handle Judge_Graphic_Float_Create(uint32_t X,uint32_t Y,uint32
 		return Float;
 }
 
-Judge_Graphic_Obj_Handle Judge_Graphic_Integer_Create(uint32_t X,uint32_t Y,uint32_t Font_Size,int32_t Val)
+Judge_Graphic_Obj_Handle Judge_Graphic_Integer_Create(uint32_t X,uint32_t Y,uint32_t Font_Size,int32_t Val,Judge_Graphic_Color_t Color)
 {
 		Judge_Graphic_Obj_Handle Int = pvPortMalloc(sizeof(Judge_Graphic_Obj_t));
 		if(!Int)
@@ -778,6 +784,7 @@ Judge_Graphic_Obj_Handle Judge_Graphic_Integer_Create(uint32_t X,uint32_t Y,uint
 		Int->Graphic_Data.graphic_tpye = INTEGER;
 		Int->Graphic_Data.start_x = X;
 		Int->Graphic_Data.start_y = Y;
+		Int->Graphic_Data.color = Color;
 		Int->Graphic_Data.start_angle = Font_Size<10?10:Font_Size;
 		Int->Graphic_Data.width = Font_Size/10<4?4:Font_Size/10;
 		
@@ -788,7 +795,7 @@ Judge_Graphic_Obj_Handle Judge_Graphic_Integer_Create(uint32_t X,uint32_t Y,uint
 		return Int;
 }
 
-Judge_Graphic_Obj_Handle Judge_Graphic_Character_Create(uint32_t X,uint32_t Y,uint32_t Font_Size,char* Str)
+Judge_Graphic_Obj_Handle Judge_Graphic_Character_Create(uint32_t X,uint32_t Y,uint32_t Font_Size,char* Str,Judge_Graphic_Color_t Color)
 {    
 	  if(!Str)
 			return NULL;
@@ -808,6 +815,7 @@ Judge_Graphic_Obj_Handle Judge_Graphic_Character_Create(uint32_t X,uint32_t Y,ui
 		Character->Graphic_Data.start_x = X;
 		Character->Graphic_Data.start_y = Y;
 		Character->Graphic_Data.end_angle = Character_Len;
+		Character->Graphic_Data.color = Color;
 		Character->Graphic_Data.start_angle = Font_Size<10?10:Font_Size;
 		Character->Graphic_Data.width = Font_Size/10<2?2:Font_Size/10;
 			

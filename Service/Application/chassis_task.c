@@ -96,8 +96,8 @@ void Chassis_Init(Chassis_t* Chassis_Data_Init)
 	//底盘发送数据清零
 	Chassis_Data_Set_In_Four((uint16_t*)Chassis_Data_Init->Chassis_Motor_Curent_Send,0);
 	
-	Chassis_Data_Init->Spin_Left_Graphic = Judge_Graphic_Character_Create(960-20,200,20,"L");
-	Chassis_Data_Init->Spin_Right_Graphic = Judge_Graphic_Character_Create(960+20,200,20,"R");
+	Chassis_Data_Init->Spin_Left_Graphic = Judge_Graphic_Character_Create(960-20,200,20,"L",COLOR_GREEN);
+	Chassis_Data_Init->Spin_Right_Graphic = Judge_Graphic_Character_Create(960+20,200,20,"R",COLOR_GREEN);
 }
 
 /*****电机数据更新函数*****/
@@ -753,10 +753,6 @@ void Chassis_Task(void *pvParameters)
 	vTaskDelay(100);
 	
 	Chassis_Init(&Chassis); //底盘初始化
-  
-	for(int ii = 0;ii < 4;ii++)
-	
-	pid_init(&Chassis_PID[ii],8.8,0,0,9000,5000,2); //增量式PID初始化 
 	
 	while(1)
 	{
