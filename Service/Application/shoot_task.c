@@ -82,15 +82,26 @@ void Shoot_Mode_Set(Shoot_t* Mode_Set)
 				{
 						/****************信号产生部分*****************/
 						//统计按下鼠标左键和下拨时间
-						if(Shoot_Mode_Switch==RC_SW_DOWN||Shoot_Mouse_Key)
+						if(Shoot_Mode_Switch==RC_SW_DOWN)
 						{
 								if(Mode_Set->Shoot_Mode_Switch_Down_Time<SHOOT_MODE_SWITCH_DOWN_TIME_LIMIT)
 										Mode_Set->Shoot_Mode_Switch_Down_Time++;
 						}
 						else 
 								Mode_Set->Shoot_Mode_Switch_Down_Time=0;
+						
+						if(Shoot_Mouse_Key)
+						{
+								if(Mode_Set->Shoot_Mouse_Key_Pressed_Time<SHOOT_MOUSE_KEY_PRESSED_TIME_LIMIT)
+										Mode_Set->Shoot_Mouse_Key_Pressed_Time++;
+						}
+						else
+								Mode_Set->Shoot_Mouse_Key_Pressed_Time=0;
+						
+						
 						//长按鼠标左键或这一直处于下拨状态，产生连发信号
-						uint8_t Shoot_Bullet_No_Break_Signal = Mode_Set->Shoot_Mode_Switch_Down_Time==SHOOT_MODE_SWITCH_DOWN_TIME_LIMIT;
+						uint8_t Shoot_Bullet_No_Break_Signal = (Mode_Set->Shoot_Mode_Switch_Down_Time==SHOOT_MODE_SWITCH_DOWN_TIME_LIMIT)||
+																									 (Mode_Set->Shoot_Mouse_Key_Pressed_Time==SHOOT_MOUSE_KEY_PRESSED_TIME_LIMIT);
 						//点击鼠标左键，或者下拨一次，产生单发信号
 						uint8_t Shoot_Bullet_Once_Signal = (Shoot_Mode_Switch==RC_SW_DOWN&&Mode_Set->Last_Shoot_Mode_Switch!=RC_SW_DOWN)
 																				||(!Shoot_Mouse_Key&&Mode_Set->Last_Shoot_Mouse_Key);
@@ -100,6 +111,10 @@ void Shoot_Mode_Set(Shoot_t* Mode_Set)
 //						//每次检测到连发信号，需要发射的弹丸数目置一
 //						if(Shoot_Bullet_No_Break_Signal)
 //							Mode_Set->Need_Shoot_Count=1;
+						
+						uint8_t Shoot_Judge_Permit_Signal = 1;
+						if(Is_Judge_Online())
+							Shoot_Judge_Permit_Signal = Mode_Set->Judge_Shoot_Cooling_Heat < (Mode_Set->Judge_Shoot_Cooling_Limit - 15);
 						
 						//电机堵转信号
 						uint8_t Trigger_Motor_Stall_Signal = 0;
@@ -132,7 +147,7 @@ void Shoot_Mode_Set(Shoot_t* Mode_Set)
 								}
 						}
 						//在准备射击状态下，如果需要发射的弹丸数目大于0，进入发射状态
-						else if(Mode_Set->Shoot_Mode == SHOOT_READY&&(Shoot_Bullet_Once_Signal||Shoot_Bullet_No_Break_Signal))
+						else if(Mode_Set->Shoot_Mode == SHOOT_READY&&(Shoot_Bullet_Once_Signal||Shoot_Bullet_No_Break_Signal)&&Shoot_Judge_Permit_Signal)
 						{
 								Mode_Set->Shoot_Mode = SHOOT_BULLET;
 						}
@@ -148,21 +163,20 @@ void Shoot_Mode_Set(Shoot_t* Mode_Set)
 							if(Mode_Set->Shoot_Key!=Mode_Set->Shoot_Key_On_Level&&Mode_Set->Last_Shoot_Key==SHOOT_KEY_ON)
 							{
 									//且没有连发信号，进入开始发射状态，否则清零计数器
-									if(!Shoot_Bullet_No_Break_Signal)
-											Mode_Set->Shoot_Mode=SHOOT_START;
-									else
-											Mode_Set->Shoot_Bullet_Time=0;
+									Mode_Set->Shoot_Mode = SHOOT_START;
 							}
+//							if(fabs(Mode_Set->Trigger_Motor_Angle_Set-Mode_Set->Trigger_Motor_Angle_Get) < 0.01)
+//							{
+//									Mode_Set->Shoot_Mode = SHOOT_START;
+//							}
 							
 							//在发射弹丸状态下，如果长时间未发弹，检查电机是否卡住了
 							if(Mode_Set->Shoot_Bullet_Time>Mode_Set->Shoot_Bullet_Time_Limit)
 							{
-									//如果电机卡住了，进入回拨模式
-									if(Trigger_Motor_Stall_Signal)
-											Mode_Set->Shoot_Mode=SHOOT_STALL;
-									//电机没卡住，说明没弹丸了
-									else
+									if(fabs(Mode_Set->Trigger_Motor_Angle_Set-Mode_Set->Trigger_Motor_Angle_Get) < 0.01)
 											Mode_Set->Shoot_Mode=SHOOT_START;
+									else
+											Mode_Set->Shoot_Mode=SHOOT_STALL;
 							}
 						}
 				}
@@ -180,7 +194,13 @@ void Shoot_Mode_Change(Shoot_t* Mode_Change)
 		if(Mode_Change->Shoot_Mode==SHOOT_BULLET)
 		{
 				if(Mode_Change->Last_Shoot_Mode!=SHOOT_BULLET)
+				{
 						Mode_Change->Shoot_Bullet_Time=0;
+						Mode_Change->Trigger_Angle_Timestamp = xTaskGetTickCount();
+						Mode_Change->Trigger_Motor_Angle_Get = 0;
+						Mode_Change->Trigger_Motor_Angle_Set = 2*PI/Mode_Change->Bullets_Per_Rotation - 0.1;
+						Mode_Change->Trigger_Motor_Angle_Pid.iout = 0;
+				}
 				else
 						Mode_Change->Shoot_Bullet_Time++;
 		}
@@ -214,12 +234,10 @@ void Shoot_Pid_Calc(Shoot_t* Pid_Calc)
 		if(Pid_Calc->Shoot_Mode!=SHOOT_STOP)
 		{
 				
-				Pid_Calc->Trigger_Motor_Current_Send = pid_calc(&Pid_Calc->Trigger_Motor_Pid,Pid_Calc->Trigger_Motor_Speed_Get,Pid_Calc->Trigger_Motor_Speed_Set);
+				Pid_Calc->Trigger_Motor_Current_Send = pid_calc(&Pid_Calc->Trigger_Motor_Speed_Pid,Pid_Calc->Trigger_Motor_Speed_Get,Pid_Calc->Trigger_Motor_Speed_Set);
 		}
 		else
 		{
-//				Pid_Calc->Fric_Motor_Current_Send[0] = 0;
-//				Pid_Calc->Fric_Motor_Current_Send[1] = 0;
 				Pid_Calc->Trigger_Motor_Current_Send = 0;
 		}
 		int8_t Factor = Pid_Calc->Fric_Reverse_Flag?-1:1;
@@ -243,7 +261,8 @@ void Shoot_Init(Shoot_t* Data_Init)
 		//初始化PID
 		pid_init(&Data_Init->Fric_Motor_Pid[0],FRIC_MOTOR_LEFT_KP,FRIC_MOTOR_LEFT_KI,FRIC_MOTOR_LEFT_KD,FRIC_MOTOR_LEFT_MAXOUT,FRIC_MOTOR_LEFT_IMAXOUT,1);	
 		pid_init(&Data_Init->Fric_Motor_Pid[1],FRIC_MOTOR_RIGHT_KP,FRIC_MOTOR_RIGHT_KI,FRIC_MOTOR_RIGHT_KD,FRIC_MOTOR_RIGHT_MAXOUT,FRIC_MOTOR_RIGHT_IMAXOUT,1);	
-		pid_init(&Data_Init->Trigger_Motor_Pid,TRIGGER_MOTOR_KP,TRIGGER_MOTOR_KI,TRIGGER_MOTOR_KD,TRIGGER_MOTOR_MAXOUT,TRIGGER_MOTOR_IMAXOUT,2);	
+		pid_init(&Data_Init->Trigger_Motor_Speed_Pid,TRIGGER_MOTOR_SPEED_KP,TRIGGER_MOTOR_SPEED_KI,TRIGGER_MOTOR_SPEED_KD,TRIGGER_MOTOR_SPEED_MAXOUT,TRIGGER_MOTOR_SPEED_IMAXOUT,2);	
+		pid_init(&Data_Init->Trigger_Motor_Angle_Pid,TRIGGER_MOTOR_ANGLE_KP,TRIGGER_MOTOR_ANGLE_KI,TRIGGER_MOTOR_ANGLE_KD,TRIGGER_MOTOR_ANGLE_MAXOUT,TRIGGER_MOTOR_ANGLE_IMAXOUT,1);
 		
 		Data_Init->Bullets_Per_Rotation = BULLETS_PER_ROTATION;
 		Data_Init->Fric_Wheel_Diameter = FRIC_WHEEL_DIAMETER;
@@ -347,12 +366,14 @@ void Shoot_Control_Data_Set(Shoot_t* Control_Data_Set)
 		}
 		else if(Control_Data_Set->Shoot_Mode == SHOOT_BULLET)
 		{
-				uint8_t Freq_Set = Get_Shoot_Freq_From_Judge_System(Control_Data_Set);
+				uint32_t Current_Tick = xTaskGetTickCount();
+				Control_Data_Set->Trigger_Motor_Angle_Get += (float)(Current_Tick - Control_Data_Set->Trigger_Angle_Timestamp)/1000*((float)Control_Data_Set->Trigger_Motor_Msg_Get->speed/36/60*2*PI);
+				Control_Data_Set->Trigger_Angle_Timestamp = Current_Tick;
+				Control_Data_Set->Trigger_Motor_Speed_Set = pid_calc(&Control_Data_Set->Trigger_Motor_Angle_Pid,Control_Data_Set->Trigger_Motor_Angle_Get,Control_Data_Set->Trigger_Motor_Angle_Set);
+				
 				//给射频加上正负号，与加载弹丸速度的正负号一致
-				if(Control_Data_Set->Load_Bullet_Speed>0)
-						Control_Data_Set->Trigger_Motor_Speed_Set = Freq_Set;
-				else
-						Control_Data_Set->Trigger_Motor_Speed_Set = -Freq_Set;
+				if(Control_Data_Set->Load_Bullet_Speed < 0)
+						Control_Data_Set->Trigger_Motor_Speed_Set = -Control_Data_Set->Trigger_Motor_Speed_Set;
 		}
 		else if(Control_Data_Set->Shoot_Mode == SHOOT_STALL)
 		{

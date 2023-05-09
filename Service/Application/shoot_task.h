@@ -23,11 +23,17 @@
 #define FRIC_MOTOR_RIGHT_MAXOUT 10000
 #define FRIC_MOTOR_RIGHT_IMAXOUT 1000
 
-#define TRIGGER_MOTOR_KP 1200
-#define TRIGGER_MOTOR_KI 0
-#define TRIGGER_MOTOR_KD 0
-#define TRIGGER_MOTOR_MAXOUT 10000
-#define TRIGGER_MOTOR_IMAXOUT 5000
+#define TRIGGER_MOTOR_SPEED_KP 4500
+#define TRIGGER_MOTOR_SPEED_KI 0
+#define TRIGGER_MOTOR_SPEED_KD 0
+#define TRIGGER_MOTOR_SPEED_MAXOUT 10000
+#define TRIGGER_MOTOR_SPEED_IMAXOUT 5000
+
+#define TRIGGER_MOTOR_ANGLE_KP 25
+#define TRIGGER_MOTOR_ANGLE_KI 0
+#define TRIGGER_MOTOR_ANGLE_KD 0
+#define TRIGGER_MOTOR_ANGLE_MAXOUT 25
+#define TRIGGER_MOTOR_ANGLE_IMAXOUT 0
 
 //按键开启发射机构
 #define SHOOT_START_STOP_KEY KEY_PRESSED_OFFSET_R
@@ -62,7 +68,8 @@
 #define SHOOT_CAN CAN_1
 
 #define SHOOT_BULLET_TIME_LIMIT 500
-#define SHOOT_MODE_SWITCH_DOWN_TIME_LIMIT 100
+#define SHOOT_MODE_SWITCH_DOWN_TIME_LIMIT 500
+#define SHOOT_MOUSE_KEY_PRESSED_TIME_LIMIT 100
 #define SHOOT_STALL_TIME_LIMIT 1000
 #define TRIGGER_MOTOR_MIN_SPEED 1 
 
@@ -99,7 +106,8 @@ typedef struct
 	const RC_Ctl_t* Shoot_RC_Ctl_Data;	
 	
 	PID Fric_Motor_Pid[2];
-	PID Trigger_Motor_Pid;
+	PID Trigger_Motor_Speed_Pid;
+	PID Trigger_Motor_Angle_Pid;
 	
 	float Trigger_Motor_Speed_Set;//
 	float Fric_Motor_Speed_Set;		//
@@ -107,6 +115,10 @@ typedef struct
 	float Fric_Motor_Speed_Get[2];//
 	float Fric_Motor_Current_Send[2];//
 	float Trigger_Motor_Current_Send;//
+	float Trigger_Motor_Angle_Get;
+	float Trigger_Motor_Angle_Set;
+	
+	uint32_t Trigger_Angle_Timestamp;
 	
 	uint8_t Fric_Reverse_Flag;    //摩擦轮电机反转
 	float Fric_Wheel_Diameter;		//摩擦轮直径
@@ -128,6 +140,7 @@ typedef struct
 	uint16_t Shoot_Bullet_Time;
 	uint16_t Shoot_Start_Time;
 	uint16_t Shoot_Mode_Switch_Down_Time;
+	uint16_t Shoot_Mouse_Key_Pressed_Time;
 	uint16_t Trigger_Motor_Low_Speed_Time;
 	uint16_t Need_Shoot_Count;
 	
