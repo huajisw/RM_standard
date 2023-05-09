@@ -29,6 +29,6 @@ void Judge_Task(void *pvParameters)
 		while(1)
 		{
 				Judge_Graphic_Handler();
-				vTaskDelay(40);
+				vTaskDelay(100);
 		}
 }
