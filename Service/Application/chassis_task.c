@@ -394,11 +394,11 @@ void Chassis_Mode_Spin(Chassis_t* Chassis_Spin_Set)
 					}
 					if(Chassis_Spin_Set->Chassis_RC_Ctl_Data->key.v & CHASSIS_A_KEY)
 					{
-						Chassis_VX -= Chassis_Max_Speed;
+						Chassis_VX += Chassis_Max_Speed;
 					}
 					if(Chassis_Spin_Set->Chassis_RC_Ctl_Data->key.v & CHASSIS_D_KEY)
 					{
-						Chassis_VX += Chassis_Max_Speed;
+						Chassis_VX -= Chassis_Max_Speed;
 					}
 					
 					if(Chassis_Spin_Set->Chassis_Mode == Chassis_Spin_Right)
@@ -413,7 +413,7 @@ void Chassis_Mode_Spin(Chassis_t* Chassis_Spin_Set)
 			}
 		
 			
-			sin_yaw = arm_sin_f32(-*Chassis_Spin_Set->Chassis_Follow_Gimbal_Angle_TM);
+			sin_yaw = arm_sin_f32(*Chassis_Spin_Set->Chassis_Follow_Gimbal_Angle_TM);
 			
       cos_yaw = arm_cos_f32(-*Chassis_Spin_Set->Chassis_Follow_Gimbal_Angle_TM);
 			
