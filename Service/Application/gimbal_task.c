@@ -47,8 +47,8 @@ float Gimbal_Motor_Yaw_Set_Add;
 float Gimbal_Motor_Pitch_Set_Add;
 
 //÷–µ„…Ë÷√
-#define Gimbal_Yaw_Middle_Angle  -3.14f
-#define Gimbal_Pitch_Middle_Angle  0.30f
+#define Gimbal_Yaw_Middle_Angle  1.25f
+#define Gimbal_Pitch_Middle_Angle  0.45f
 
 #define Yaw_Max_Angle 1.9f
 #define Yaw_Min_Angle -1.9f

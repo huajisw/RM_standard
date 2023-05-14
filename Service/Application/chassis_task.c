@@ -198,11 +198,11 @@ void Chassis_Mode_RC(Chassis_t* Chassis_RC_Mode_Set)
 					}
 					if(Chassis_RC_Mode_Set->Chassis_RC_Ctl_Data->key.v & CHASSIS_A_KEY)
 					{
-						AD_X_Speed_Set -= Chassis_Shift_Max_Speed;
+						AD_X_Speed_Set += Chassis_Shift_Max_Speed;
 					}
 					if(Chassis_RC_Mode_Set->Chassis_RC_Ctl_Data->key.v & CHASSIS_D_KEY)
 					{
-						AD_X_Speed_Set += Chassis_Shift_Max_Speed;
+						AD_X_Speed_Set -= Chassis_Shift_Max_Speed;
 					}
 					if(Chassis_RC_Mode_Set->Chassis_RC_Ctl_Data->key.v & CHASSIS_TURN_LEFT_KEY)
 					{
@@ -243,7 +243,7 @@ void Chassis_Mode_RC(Chassis_t* Chassis_RC_Mode_Set)
 						QE_LR_Speed_Set += Chassis_Max_Speed;
 					}					
 			}
-			Chassis_RC_Mode_Set->Chassis_X_Speed_Set = ((float)(Chassis_RC_Mode_Set->Chassis_RC_Ctl_Data->rc.ch0)/660.000f * Chassis_RC_Max_Speed) + AD_X_Speed_Set;
+			Chassis_RC_Mode_Set->Chassis_X_Speed_Set = -((float)(Chassis_RC_Mode_Set->Chassis_RC_Ctl_Data->rc.ch0)/660.000f * Chassis_RC_Max_Speed) + AD_X_Speed_Set;
 			Chassis_RC_Mode_Set->Chassis_Y_Speed_Set = ((float)(Chassis_RC_Mode_Set->Chassis_RC_Ctl_Data->rc.ch1)/660.000f * Chassis_RC_Max_Speed) + WS_Y_Speed_Set;
 			Chassis_RC_Mode_Set->Chassis_LR_Speed_Set = ((float)(Chassis_RC_Mode_Set->Chassis_RC_Ctl_Data->rc.ch4)/660.000f * Chassis_RC_Max_Speed) + QE_LR_Speed_Set;
 		
@@ -269,11 +269,11 @@ void Chassis_Mode_Follow_Gimbal(Chassis_t* Chassis_FW_Mode_Set)
 					}
 					if(Chassis_FW_Mode_Set->Chassis_RC_Ctl_Data->key.v & CHASSIS_A_KEY)
 					{
-						AD_X_Speed_Set -= Chassis_Shift_Max_Speed;
+						AD_X_Speed_Set += Chassis_Shift_Max_Speed;
 					}
 					if(Chassis_FW_Mode_Set->Chassis_RC_Ctl_Data->key.v & CHASSIS_D_KEY)
 					{
-						AD_X_Speed_Set += Chassis_Shift_Max_Speed;
+						AD_X_Speed_Set -= Chassis_Shift_Max_Speed;
 					}
 					if(Chassis_FW_Mode_Set->Chassis_RC_Ctl_Data->key.v & CHASSIS_TURN_LEFT_KEY)
 					{
@@ -299,11 +299,11 @@ void Chassis_Mode_Follow_Gimbal(Chassis_t* Chassis_FW_Mode_Set)
 					}
 					if(Chassis_FW_Mode_Set->Chassis_RC_Ctl_Data->key.v & CHASSIS_A_KEY)
 					{
-						AD_X_Speed_Set -= Chassis_Max_Speed;
+						AD_X_Speed_Set += Chassis_Max_Speed;
 					}
 					if(Chassis_FW_Mode_Set->Chassis_RC_Ctl_Data->key.v & CHASSIS_D_KEY)
 					{
-						AD_X_Speed_Set += Chassis_Max_Speed;
+						AD_X_Speed_Set -= Chassis_Max_Speed;
 					}
 					if(Chassis_FW_Mode_Set->Chassis_RC_Ctl_Data->key.v & CHASSIS_TURN_LEFT_KEY)
 					{
@@ -315,7 +315,7 @@ void Chassis_Mode_Follow_Gimbal(Chassis_t* Chassis_FW_Mode_Set)
 					}					
 			}
 			
-			AD_X_Speed_Set +=((float)(Chassis_FW_Mode_Set->Chassis_RC_Ctl_Data->rc.ch0)/660.000f * Chassis_RC_Max_Speed);
+			AD_X_Speed_Set += -((float)(Chassis_FW_Mode_Set->Chassis_RC_Ctl_Data->rc.ch0)/660.000f * Chassis_RC_Max_Speed);
 			WS_Y_Speed_Set +=((float)(Chassis_FW_Mode_Set->Chassis_RC_Ctl_Data->rc.ch1)/660.000f * Chassis_RC_Max_Speed);
 
 
@@ -336,7 +336,7 @@ void Chassis_Mode_Spin(Chassis_t* Chassis_Spin_Set)
 	static int RC_SPIN_CTRL,RC_SPIN_CTRL_Mode;
 	float Chassis_VX,Chassis_VY,Chassis_VR;
 	
-			Chassis_VX = ((float)(Chassis_Spin_Set->Chassis_RC_Ctl_Data->rc.ch0)/660.000f * Chassis_RC_Max_Speed);
+			Chassis_VX = -((float)(Chassis_Spin_Set->Chassis_RC_Ctl_Data->rc.ch0)/660.000f * Chassis_RC_Max_Speed);
 			Chassis_VY = ((float)(Chassis_Spin_Set->Chassis_RC_Ctl_Data->rc.ch1)/660.000f * Chassis_RC_Max_Speed);
 			Chassis_VR = ((float)(Chassis_Spin_Set->Chassis_RC_Ctl_Data->rc.ch4)/660.000f * Chassis_RC_Max_Speed);
 	
@@ -361,11 +361,11 @@ void Chassis_Mode_Spin(Chassis_t* Chassis_Spin_Set)
 					}
 					if(Chassis_Spin_Set->Chassis_RC_Ctl_Data->key.v & CHASSIS_A_KEY)
 					{
-						Chassis_VX -= Chassis_Shift_Max_Speed;
+						Chassis_VX += Chassis_Shift_Max_Speed;
 					}
 					if(Chassis_Spin_Set->Chassis_RC_Ctl_Data->key.v & CHASSIS_D_KEY)
 					{
-						Chassis_VX += Chassis_Shift_Max_Speed;
+						Chassis_VX -= Chassis_Shift_Max_Speed;
 					}
 					
 					if(Chassis_Spin_Set->Chassis_Mode == Chassis_Spin_Right)
