@@ -47,14 +47,14 @@ float Gimbal_Motor_Yaw_Set_Add;
 float Gimbal_Motor_Pitch_Set_Add;
 
 //÷–µ„…Ë÷√
-#define Gimbal_Yaw_Middle_Angle  -3.14f
-#define Gimbal_Pitch_Middle_Angle  0.30f
+#define Gimbal_Yaw_Middle_Angle  -1.06f
+#define Gimbal_Pitch_Middle_Angle  0.45f
 
 #define Yaw_Max_Angle 1.9f
 #define Yaw_Min_Angle -1.9f
 
-#define Pitch_Max_Angle 0.65f
-#define Pitch_Min_Angle -0.40f
+#define Pitch_Max_Angle 0.23f
+#define Pitch_Min_Angle -0.33f
 
 #define Pitch_IMU_Max_Angle 0
 #define Pitch_IMU_Min_Angle 0
@@ -108,13 +108,13 @@ static void Angle_Control_Limit(float *Angle_Set,float Max_Angle,float Min_Angle
 
 #define Gimbal_Yaw_IMU_Angle_Kp 2
 #define Gimbal_Yaw_IMU_Angle_Ki 0
-#define Gimbal_Yaw_IMU_Angle_Kd 600
+#define Gimbal_Yaw_IMU_Angle_Kd 0
 #define Gimbal_Yaw_IMU_Angle_Maxout 9
 #define Gimbal_Yaw_IMU_Angle_IMaxout 0
 
-#define Gimbal_Yaw_Speed_Kp 7000
+#define Gimbal_Yaw_Speed_Kp 3000
 #define Gimbal_Yaw_Speed_Ki 0
-#define Gimbal_Yaw_Speed_Kd 600
+#define Gimbal_Yaw_Speed_Kd 0
 #define Gimbal_Yaw_Speed_Maxout 25000
 #define Gimbal_Yaw_Speed_IMaxout 5000
 
