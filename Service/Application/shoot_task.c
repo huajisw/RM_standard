@@ -147,7 +147,7 @@ void Shoot_Mode_Set(Shoot_t* Mode_Set)
 								}
 						}
 						//在准备射击状态下，如果需要发射的弹丸数目大于0，进入发射状态
-						else if(Mode_Set->Shoot_Mode == SHOOT_READY&&(Shoot_Bullet_Once_Signal||Shoot_Bullet_No_Break_Signal)&&Shoot_Judge_Permit_Signal)
+						else if(Mode_Set->Shoot_Mode == SHOOT_READY&&(Shoot_Bullet_Once_Signal||Shoot_Bullet_No_Break_Signal))
 						{
 								Mode_Set->Shoot_Mode = SHOOT_BULLET;
 						}
@@ -160,10 +160,13 @@ void Shoot_Mode_Set(Shoot_t* Mode_Set)
 						else if(Mode_Set->Shoot_Mode == SHOOT_BULLET)
 						{
 							//在发射弹丸状态，如果弹丸射出
-							if(Mode_Set->Shoot_Key!=Mode_Set->Shoot_Key_On_Level&&Mode_Set->Last_Shoot_Key==SHOOT_KEY_ON)
+							if(Mode_Set->Shoot_Key!=Mode_Set->Shoot_Key_On_Level)
 							{
 									//且没有连发信号，进入开始发射状态，否则清零计数器
-									Mode_Set->Shoot_Mode = SHOOT_START;
+								if(!Shoot_Bullet_No_Break_Signal)	
+										Mode_Set->Shoot_Mode = SHOOT_START;
+								else
+										Mode_Set->Shoot_Bullet_Time = 0;
 							}
 //							if(fabs(Mode_Set->Trigger_Motor_Angle_Set-Mode_Set->Trigger_Motor_Angle_Get) < 0.01)
 //							{
@@ -173,7 +176,7 @@ void Shoot_Mode_Set(Shoot_t* Mode_Set)
 							//在发射弹丸状态下，如果长时间未发弹，检查电机是否卡住了
 							if(Mode_Set->Shoot_Bullet_Time>Mode_Set->Shoot_Bullet_Time_Limit)
 							{
-									if(fabs(Mode_Set->Trigger_Motor_Angle_Set-Mode_Set->Trigger_Motor_Angle_Get) < 0.01)
+									if(!Trigger_Motor_Stall_Signal)
 											Mode_Set->Shoot_Mode=SHOOT_START;
 									else
 											Mode_Set->Shoot_Mode=SHOOT_STALL;
@@ -340,7 +343,7 @@ float Get_Fric_Speed_From_Judge_System(Shoot_t* Get_Fric_Speed)
 		if(Is_Judge_Online())
 		{
 				if(Get_Fric_Speed->Judge_Shoot_Speed_Limit <= 15)
-						return Get_Fric_Speed->Judge_Shoot_Speed_Limit;
+						return Get_Fric_Speed->Judge_Shoot_Speed_Limit*1.05;
 				else if(Get_Fric_Speed->Judge_Shoot_Speed_Limit <= 18)
 						return Get_Fric_Speed->Judge_Shoot_Speed_Limit*0.95;
 				else if(Get_Fric_Speed->Judge_Shoot_Speed_Limit <= 22)
@@ -366,11 +369,12 @@ void Shoot_Control_Data_Set(Shoot_t* Control_Data_Set)
 		}
 		else if(Control_Data_Set->Shoot_Mode == SHOOT_BULLET)
 		{
-				uint32_t Current_Tick = xTaskGetTickCount();
-				Control_Data_Set->Trigger_Motor_Angle_Get += (float)(Current_Tick - Control_Data_Set->Trigger_Angle_Timestamp)/1000*((float)Control_Data_Set->Trigger_Motor_Msg_Get->speed/36/60*2*PI);
-				Control_Data_Set->Trigger_Angle_Timestamp = Current_Tick;
-				Control_Data_Set->Trigger_Motor_Speed_Set = pid_calc(&Control_Data_Set->Trigger_Motor_Angle_Pid,Control_Data_Set->Trigger_Motor_Angle_Get,Control_Data_Set->Trigger_Motor_Angle_Set);
-				
+//				uint32_t Current_Tick = xTaskGetTickCount();
+//				Control_Data_Set->Trigger_Motor_Angle_Get += (float)(Current_Tick - Control_Data_Set->Trigger_Angle_Timestamp)/1000*((float)Control_Data_Set->Trigger_Motor_Msg_Get->speed/36/60*2*PI);
+//				Control_Data_Set->Trigger_Angle_Timestamp = Current_Tick;
+//				Control_Data_Set->Trigger_Motor_Speed_Set = pid_calc(&Control_Data_Set->Trigger_Motor_Angle_Pid,Control_Data_Set->Trigger_Motor_Angle_Get,Control_Data_Set->Trigger_Motor_Angle_Set);
+				Control_Data_Set->Trigger_Motor_Speed_Set = Get_Shoot_Freq_From_Judge_System(Control_Data_Set);
+			
 				//给射频加上正负号，与加载弹丸速度的正负号一致
 				if(Control_Data_Set->Load_Bullet_Speed < 0)
 						Control_Data_Set->Trigger_Motor_Speed_Set = -Control_Data_Set->Trigger_Motor_Speed_Set;
