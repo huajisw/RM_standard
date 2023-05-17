@@ -278,13 +278,26 @@ void Shoot_Init(Shoot_t* Data_Init)
 		Data_Init->Shoot_Key_On_Level = SHOOT_KEY_ON;
 		Data_Init->Fric_Reverse_Flag = 1;
 		
-		Judge_Graphic_Line_Create(950-60,540-80,950+60,540-80,2,COLOR_YELLOW);
-		Judge_Graphic_Line_Create(950-20,540-50,950+20,540-50,2,COLOR_YELLOW);
+//		Judge_Graphic_Line_Create(950-60,540-80,950+60,540-80,2,COLOR_YELLOW);
+//		Judge_Graphic_Line_Create(950-20,540-50,950+20,540-50,2,COLOR_YELLOW);
+//		
+//		Judge_Graphic_Line_Create(950-60,540-80,950-20,540-50,2,COLOR_YELLOW);
+//		Judge_Graphic_Line_Create(950+60,540-80,950+20,540-50,2,COLOR_YELLOW);
+//		
+//		Judge_Graphic_Line_Create(960-10,540-80,960-10,540-50,2,COLOR_YELLOW);
+
+//15m/sºáÏß
+		Judge_Graphic_Line_Create(960-25,540-80,960+15,540-80,2,COLOR_ORANGE); //1M×óÓÒ
+		Judge_Graphic_Line_Create(960-35,540-90,960+25,540-90,2,COLOR_ORANGE); //2M×óÓÒ
+		Judge_Graphic_Line_Create(960-35,540-105,960+25,540-105,2,COLOR_WHITE); //Pitch×î´óÊ±Ç°ÉÚÕ¾
+
+//ÊúÏß
+		Judge_Graphic_Line_Create(960-5,540-120,960-5,540-30,2,COLOR_YELLOW);  //¼¤¹âÊúÏß
 		
-		Judge_Graphic_Line_Create(950-60,540-80,950-20,540-50,2,COLOR_YELLOW);
-		Judge_Graphic_Line_Create(950+60,540-80,950+20,540-50,2,COLOR_YELLOW);
-		
-		Judge_Graphic_Line_Create(960-10,540-80,960-10,540-50,2,COLOR_YELLOW);
+//30m/sºáÏß
+		Judge_Graphic_Line_Create(960-25,540-40,960+15,540-40,2,COLOR_GREEN); //3M×óÓÒ
+		Judge_Graphic_Line_Create(960-35,540-50,960+25,540-50,2,COLOR_GREEN); //5M×óÓÒ
+		Judge_Graphic_Line_Create(960-30,540-55,960+20,540-55,2,COLOR_WHITE); //5M×óÓÒÇ°ÉÚÕ¾
 		
 		Data_Init->Bullet_Basket_Graphic = Judge_Graphic_Character_Create(1665,600,20,"BULLET BASKET",COLOR_GREEN);
 		Data_Init->Shoot_Stall_Graphic = Judge_Graphic_Character_Create(1665,650,20,"SHOOT STALL",COLOR_GREEN);
@@ -341,8 +354,8 @@ float Get_Fric_Speed_From_Judge_System(Shoot_t* Get_Fric_Speed)
 		{
 				if(Get_Fric_Speed->Judge_Shoot_Speed_Limit <= 15)
 						return Get_Fric_Speed->Judge_Shoot_Speed_Limit;
-				else if(Get_Fric_Speed->Judge_Shoot_Speed_Limit <= 18)
-						return Get_Fric_Speed->Judge_Shoot_Speed_Limit*0.95;
+//				else if(Get_Fric_Speed->Judge_Shoot_Speed_Limit <= 18)
+//						return Get_Fric_Speed->Judge_Shoot_Speed_Limit*0.95;
 				else if(Get_Fric_Speed->Judge_Shoot_Speed_Limit <= 22)
 						return Get_Fric_Speed->Judge_Shoot_Speed_Limit*0.85;
 				else if(Get_Fric_Speed->Judge_Shoot_Speed_Limit <= 30)
