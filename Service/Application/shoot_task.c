@@ -281,14 +281,40 @@ void Shoot_Init(Shoot_t* Data_Init)
 		Data_Init->Shoot_Key_On_Level = SHOOT_KEY_ON;
 		Data_Init->Fric_Reverse_Flag = 1;
 		
-		Judge_Graphic_Line_Create(950-60,540-80,950+60,540-80,2,COLOR_YELLOW);
-		Judge_Graphic_Line_Create(950-20,540-50,950+20,540-50,2,COLOR_YELLOW);
+//		Judge_Graphic_Line_Create(950-60,540-80,950+60,540-80,2,COLOR_YELLOW);
+//		Judge_Graphic_Line_Create(950-20,540-50,950+20,540-50,2,COLOR_YELLOW);
+//		
+//		Judge_Graphic_Line_Create(950-60,540-80,950-20,540-50,2,COLOR_YELLOW);
+//		Judge_Graphic_Line_Create(950+60,540-80,950+20,540-50,2,COLOR_YELLOW);
+//		
+//		Judge_Graphic_Line_Create(960-10,540-80,960-10,540-50,2,COLOR_YELLOW);
+
+//竖线
+		Judge_Graphic_Line_Create(960+15,540-150,960+15,540-50,2,COLOR_GREEN);
+			
+//15m/s横线
+
+		Judge_Graphic_Line_Create(960-5,540-105,960+35,540-105,2,COLOR_YELLOW);	//1-2.4m平地+旋转装甲板
+		Judge_Graphic_Line_Create(960-0,540-132,960+30,540-132,2,COLOR_WHITE);	//3m旋转装甲板
+		Judge_Graphic_Line_Create(960+80,540-132,960+100,540-132,2,COLOR_YELLOW);
+
+
+//18m/s横线
+		Judge_Graphic_Line_Create(960-5,540-85,960+35,540-85,2,COLOR_GREEN);	//2.4M平地
+		Judge_Graphic_Line_Create(960-20,540-85,960-10,540-85,2,COLOR_WHITE);	//2.4M旋转装甲板
+		Judge_Graphic_Line_Create(960+40,540-85,960+50,540-85,2,COLOR_WHITE);	//2.4M旋转装甲板
+		Judge_Graphic_Line_Create(960+80,540-85,960+100,540-85,2,COLOR_GREEN);
+		Judge_Graphic_Line_Create(960-30,540-105,960-10,540-105,2,COLOR_GREEN);	//3.6m平地（左）
+		Judge_Graphic_Line_Create(960+40,540-105,960+60,540-105,2,COLOR_GREEN);	//3.6m平地（右）
+		Judge_Graphic_Line_Create(960-40,540-95,960+70,540-95,2,COLOR_WHITE);	//3.6m旋转装甲板
+		Judge_Graphic_Line_Create(960+80,540-95,960+100,540-95,2,COLOR_GREEN);
 		
-		Judge_Graphic_Line_Create(950-60,540-80,950-20,540-50,2,COLOR_YELLOW);
-		Judge_Graphic_Line_Create(950+60,540-80,950+20,540-50,2,COLOR_YELLOW);
-		
-		Judge_Graphic_Line_Create(960-10,540-80,960-10,540-50,2,COLOR_YELLOW);
-		
+//30m/s横线
+		Judge_Graphic_Line_Create(960-5,540-65,960+35,540-65,2,COLOR_PURPLE);//3.6m平地
+		Judge_Graphic_Line_Create(960-20,540-65,960-10,540-65,2,COLOR_WHITE);//3.6m旋转装甲板（左）
+		Judge_Graphic_Line_Create(960+40,540-65,960+50,540-65,2,COLOR_WHITE);//3.6m旋转装甲板（右）
+		Judge_Graphic_Line_Create(960+80,540-65,960+100,540-65,2,COLOR_PURPLE);
+
 		Data_Init->Bullet_Basket_Graphic = Judge_Graphic_Character_Create(1665,600,20,"BULLET BASKET",COLOR_GREEN);
 		Data_Init->Shoot_Stall_Graphic = Judge_Graphic_Character_Create(1665,650,20,"SHOOT STALL",COLOR_GREEN);
 		Data_Init->No_Bullet_Graphic = Judge_Graphic_Character_Create(1665,700,20,"No Bullet",COLOR_GREEN);
@@ -343,9 +369,9 @@ float Get_Fric_Speed_From_Judge_System(Shoot_t* Get_Fric_Speed)
 		if(Is_Judge_Online())
 		{
 				if(Get_Fric_Speed->Judge_Shoot_Speed_Limit <= 15)
-						return Get_Fric_Speed->Judge_Shoot_Speed_Limit*1.05;
+						return Get_Fric_Speed->Judge_Shoot_Speed_Limit*1.02;
 				else if(Get_Fric_Speed->Judge_Shoot_Speed_Limit <= 18)
-						return Get_Fric_Speed->Judge_Shoot_Speed_Limit*0.95;
+						return Get_Fric_Speed->Judge_Shoot_Speed_Limit*0.90;
 				else if(Get_Fric_Speed->Judge_Shoot_Speed_Limit <= 22)
 						return Get_Fric_Speed->Judge_Shoot_Speed_Limit*0.85;
 				else if(Get_Fric_Speed->Judge_Shoot_Speed_Limit <= 30)
