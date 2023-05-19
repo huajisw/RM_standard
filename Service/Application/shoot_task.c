@@ -280,6 +280,7 @@ void Shoot_Init(Shoot_t* Data_Init)
 		Data_Init->Default_Shoot_Speed_Limit = DEFAULT_SHOOT_SPEED_LIMIT;
 		Data_Init->Shoot_Key_On_Level = SHOOT_KEY_ON;
 		Data_Init->Fric_Reverse_Flag = 1;
+		Data_Init->Bullet_Basket_Mode=BASKET_CLOSE;
 		
 //		Judge_Graphic_Line_Create(950-60,540-80,950+60,540-80,2,COLOR_YELLOW);
 //		Judge_Graphic_Line_Create(950-20,540-50,950+20,540-50,2,COLOR_YELLOW);
